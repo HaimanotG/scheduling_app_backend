@@ -1,5 +1,4 @@
 const Department = require('../models/Department');
-const TeacherToCourse = require('../models/TeacherToCourse');
 const TeacherRequest = require('../models/TeacherRequest');
 
 const error = require('../error');
@@ -15,35 +14,37 @@ const respondToRequest = async (req, res, next) => {
                 requestId
             } = response;
             await TeacherRequest.findOne({
-                _id: requestId
+                _id: requestId,
             }, async (err, tr) => {
-                const {
-                    course,
-                    from
-                } = tr;
-                const ttc = await TeacherToCourse({
+                if (err) throw err;
+                const updateOps = {
                     teacher,
-                    course,
-                    department: from,
-                    borrowed: true
-                }).save();
-                tr.teacher = teacher;
-                tr.save();
-
-                const referenceTeacherToCourse = await Department.updateOne({
-                    _id: tr.from
+                    isTeacherBorrowed: true
+                }
+                const response = await Course.updateOne({
+                    _id: tr.course
                 }, {
-                    $push: {
-                        teacher_to_courses: ttc._id
-                    }
+                    $set: updateOps
                 });
 
-                if (referenceTeacherToCourse.nModified <= 0) {
-                    await TeacherToCourse.deleteOne({
-                        _id: ttc._id
-                    });
-                    return next(error(500, "Unable to reference TeacherToCourse"));
+                if (response.nModified <= 0) {
+                    return next(error(400, "Unable to assign teacher to course!"));
                 }
+
+                // const referenceTeacherToCourse = await Department.updateOne({
+                //     _id: tr.from
+                // }, {
+                //     $push: {
+                //         teacher_to_courses: ttc._id
+                //     }
+                // });
+
+                // if (referenceTeacherToCourse.nModified <= 0) {
+                //     await TeacherToCourse.deleteOne({
+                //         _id: ttc._id
+                //     });
+                //     return next(error(500, "Unable to reference TeacherToCourse"));
+                // }
             });
 
             if (index === responses.length - 1) {

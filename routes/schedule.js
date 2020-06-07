@@ -1,17 +1,29 @@
-const TeacherToCourse = require('../models/TeacherToCourse');
-const Teacher = require('../models/Teacher');
-const Course = require('../models/Course');
 const Schedule = require('../models/Schedule');
+const Department = require('../models/Department');
 
 const error = require('../error');
 
 const schedule = async (req, res, next) => {
-    try {
-        const teacherToCourses = await TeacherToCourse.find();
-        res.status(200).json(teacherToCourses);
-    } catch (e) {
-        return next(error(400, e.message));
-    }
+    Department.findOne({
+            head: req.user._id
+        }, '_id name')
+        .populate({
+            path: 'batches',
+            select: '_id name',
+            populate: {
+                path: 'semesters',
+                select: '_id name',
+                populate: {
+                    path: 'courses',
+                    select: '_id name credit_hours teacher'
+                }
+            }
+        })
+        .exec()
+        .then(department => {
+            res.status(200).json(department);
+        })
+        .catch(e => next(error(400, e.message)));
 };
 
 const getSchedule = async (req, res, next) => {

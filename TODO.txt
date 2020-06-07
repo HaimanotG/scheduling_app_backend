@@ -1,10 +1,36 @@
-## Make a form that would let department heads to select from a list of teachers to assign course to teachers to.
-## the teachers choice will have two part.
-    * [] . To select from teachers that are available inside that department.
-        - if they select this option and select a teacher, the teacherToCourses collection will
-          be populated with course and teacher id along with the borrowed flag will still set to false.
-    *[] . To select from a list of departments to borrow teachers from.
-        - Will be prompted with a list of departments they can borrow teachers from.
-        - if they select one of them
+# scheduler's input
+department: {
+    batches: [{
+        semesters: [{
+            courses: [{
+                teacher,
+                credit_hours,
+            }]
+        }],
+        room,
+    }]
+}
 
-# if they want to borrow teachers they will select from a list of departments
+# scheduler's output
+schedule: {
+    department: {
+        batch: [{
+            day: [{
+                time: [{
+                    teacher_name,
+                    course_name,
+                    room_name,
+                    credit_hours
+                }]
+            }]
+        }]
+    }
+}
+
+var schedule = {};
+const dayOfWeeks = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+schedule.department = department;
+for batch in batches:
+    for semester in semesters:
+        for course in courses:
+            

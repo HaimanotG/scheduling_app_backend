@@ -6,7 +6,10 @@ const {
     getCourses,
     addCourse,
     updateCourse,
-    deleteCourse
+    deleteCourse,
+    assignTeacherToCourses,
+    removeTeacherFromCourse,
+    changeTeacherForCourse
 } = require('./CourseController');
 
 const {
@@ -43,6 +46,11 @@ const {
     sentRequests
 } = require('./RequestController');
 
+const {
+    schedule,
+    getSchedule
+} = require('./schedule');
+
 const error = require('../error');
 
 router.get('/', async (req, res, next) => {
@@ -61,7 +69,7 @@ router.get('/', async (req, res, next) => {
                 select: '_id name',
                 populate: {
                     path: 'courses',
-                    select: '_id name credit_hours'
+                    select: '_id name credit_hours teacher'
                 }
             }
         })
@@ -94,32 +102,34 @@ router.get('/', async (req, res, next) => {
 });
 
 router.get('/teachers', getTeachers);
-router.post('/teacher', addTeacher);
-router.delete('/teacher/:id', deleteTeacher);
-router.patch('/teacher/:id', updateTeacher);
+router.post('/teachers', addTeacher);
+router.delete('/teachers/:id', deleteTeacher);
+router.patch('/teachers/:id', updateTeacher);
 
 router.get('/rooms', getRooms);
-router.post('/room', addRoom);
-router.delete('/room/:id', deleteRoom);
-router.patch('/room/:id', updateRoom);
+router.post('/rooms', addRoom);
+router.delete('/rooms/:id', deleteRoom);
+router.patch('/rooms/:id', updateRoom);
 
 router.get('/batches', getBatches);
-router.post('/batch', addBatch);
-router.delete('/batch/:id', deleteBatch);
-router.patch('/batch/:id', updateBatch);
+router.post('/batches', addBatch);
+router.delete('/batches/:id', deleteBatch);
+router.patch('/batches/:id', updateBatch);
 
 router.get('/courses', getCourses);
-router.post('/course', addCourse);
-router.delete('/course/:id', deleteCourse);
-router.patch('/course/:id', updateCourse);
+router.post('/courses', addCourse);
+router.delete('/courses/:id', deleteCourse);
+router.patch('/courses/:id', updateCourse);
 
-router.get('/teacher-to-courses', getTeacherToCourses);
-router.post('/teacher-to-course', addTeacherToCourse);
-router.delete('/teacher-to-course/:id', deleteTeacherToCourse);
-router.patch('/teacher-to-course/:id', updateTeacherToCourse);
+router.post('/courses/assign-teachers', assignTeacherToCourses);
+router.patch('/courses/:courseId/change-teacher', changeTeacherForCourse);
+router.delete('/courses/:courseId/remove-teacher', removeTeacherFromCourse);
 
 router.get('/received-requests', receivedRequests);
 router.get('/sent-requests', sentRequests);
 router.patch('/respond-to-request', respondToRequest);
+
+router.get('/start-schedule', schedule);
+router.get('/schedule', getSchedule);
 
 module.exports = router;

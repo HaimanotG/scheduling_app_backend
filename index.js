@@ -19,6 +19,11 @@ app.use(express.urlencoded({
     extended: false
 }));
 
+app.use((req, res, next) => {
+    console.log(`${req.method.toUpperCase()} ${req.url}`);
+    next();
+});
+
 app.use('/api/v1/users', require('./routes/users'));
 app.use(auth);
 app.use('/api/v1/admin', permit(ADMIN), require('./routes/admin'));
@@ -26,7 +31,7 @@ app.use('/api/v1/college', permit(DEAN), require('./routes/colleges'));
 app.use('/api/v1/department', permit(HEAD), require('./routes/departments'));
 
 app.use((req, res, next) => {
-    const error = new Error("Page Not Found");
+    const error = new Error("Resource Not Found");
     error.status = 404;
     next(error);
 });

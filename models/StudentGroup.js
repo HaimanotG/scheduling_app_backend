@@ -10,6 +10,6 @@ const studentGroupSchema = new mongoose.Schema({
         type: ObjectId,
         ref: 'Semester',
     }
-})
+});
 
 module.exports = mongoose.model('StudentGroup',studentGroupSchema);

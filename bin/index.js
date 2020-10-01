@@ -73,7 +73,7 @@ const prompt = () => {
         process.exit();
     });
 };
-mongoose.connect(process.env.DB_URL, {
+mongoose.connect("mongodb://localhost/scheduling-app", {
     useNewUrlParser: true,
     useUnifiedTopology: true
 })

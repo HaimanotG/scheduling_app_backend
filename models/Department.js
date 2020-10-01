@@ -23,6 +23,7 @@ const departmentSchema = new mongoose.Schema({
         type: ObjectId,
         ref: 'Room'
     }],
+    workDays: {type: Number},
     batches: [{
         type: ObjectId,
         ref: 'Batch'

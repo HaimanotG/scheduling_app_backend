@@ -11,6 +11,18 @@ const batchSchema = new mongoose.Schema({
 		type: ObjectId,
 		ref: 'Department'
 	},
+	classRoom: {
+		type: ObjectId,
+		ref: 'Room',
+	},
+	labClassRoom: {
+		type: ObjectId,
+		ref: 'Room',
+	},
+	studentGroups: {
+		type: Number,
+		default: 1
+	},
 	semesters: [{
 		type: ObjectId,
 		ref: 'Semester'

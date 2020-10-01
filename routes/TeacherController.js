@@ -18,29 +18,47 @@ const getTeachers = async (req, res, next) => {
         });
 };
 
+const _createTeachers = async (teachers, department) => {
+    let teachersId = [];
+    for (let teacher of teachers ) {
+        teachersId.push(await _createTeacher(teacher.name, department));
+    }
+    return teachersId;
+};
+
+const _createTeacher = async (name,department) => {
+
+    const teacher = await new Teacher({
+        name,
+        department
+    }).save();
+    return teacher._id;
+};
+
 const addTeacher = async (req, res, next) => {
     try {
-        const {name} = req.body;
-        if (!name) return next(error(400, "Incomplete Form"));
+        const {teachers} = req.body;
+
         const department = await Department.findOne({head: req.user._id});
         if (!department) return next(error(400, "Unable to find Department!"));
 
-        const teacher = await new Teacher({
-            name, department: department._id,
-        }).save();
+        const teachersId = await _createTeachers(teachers,department._id);
         const referenceTeacher = await Department.updateOne({head: req.user._id}, {
             $push: {
-                teachers: teacher._id,
+                teachers: teachersId
             }
         });
         if (referenceTeacher.nModified <= 0) {
-            await Teacher.deleteOne({_id: teacher._id});
+            for (let teacher of teachersId) {
+                await Teacher.deleteOne({_id: teacher._id});
+            }
             return next(error(400, 'Unable to reference Teacher'));
         }
-        res.status(201).json({teacher})
+        res.status(201).json({teachers})
     } catch (e) {
         return next(error(e.message))
     }
+
 };
 const deleteTeacher = async (req, res, next) => {
     try {

@@ -6,6 +6,10 @@ const roomSchema = new mongoose.Schema({
 		type: String,
 		required: true
 	},
+	isLab: {
+		type: Boolean,
+		default: false
+	},
 	department: {
 		type: ObjectId,
 		ref: 'Department'

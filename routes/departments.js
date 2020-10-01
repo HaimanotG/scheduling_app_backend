@@ -30,15 +30,11 @@ const {
     getBatches,
     addBatch,
     updateBatch,
-    deleteBatch
+    deleteBatch,
+    setLabClassRoomToBatch,
+    setClassRoomToBatch,
+    setStudentGroupsToBatch
 } = require('./BatchController');
-
-const {
-    getTeacherToCourses,
-    addTeacherToCourse,
-    deleteTeacherToCourse,
-    updateTeacherToCourse
-} = require('./TeacherToCourseController');
 
 const {
     respondToRequest,
@@ -63,33 +59,15 @@ router.get('/', async (req, res, next) => {
         })
         .populate({
             path: 'batches',
-            select: '_id name',
             populate: {
                 path: 'semesters',
-                select: '_id name',
                 populate: {
                     path: 'courses',
-                    select: '_id name credit_hours teacher'
                 }
             }
         })
         .populate({
-            path: 'rooms',
-            select: '_id name'
-        })
-        .populate({
-            path: 'teacher_to_courses',
-            populate: {
-                path: 'teacher',
-                select: '_id name'
-            }
-        })
-        .populate({
-            path: 'teacher_to_courses',
-            populate: {
-                path: 'course',
-                select: '_id name credit_hours'
-            }
+            path: 'rooms'
         })
         .exec()
         .then((department, error) => {
@@ -115,6 +93,10 @@ router.get('/batches', getBatches);
 router.post('/batches', addBatch);
 router.delete('/batches/:id', deleteBatch);
 router.patch('/batches/:id', updateBatch);
+
+router.patch('/batches/:batchId/set-class-room', setClassRoomToBatch);
+router.patch('/batches/:batchId/set-lab-class-room', setLabClassRoomToBatch);
+router.patch('/batches/:batchId/set-student-groups', setStudentGroupsToBatch);
 
 router.get('/courses', getCourses);
 router.post('/courses', addCourse);

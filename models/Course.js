@@ -12,9 +12,12 @@ const courseSchema = new mongoose.Schema({
 		default: 'CourseCode',
 		required: true
 	},
-	credit_hours: {
-		type: String,
+	totalCreditHours: {
+		type: Number,
 		required: true
+	},
+	labCreditHours: {
+		type: Number
 	},
 	semester: {
 		type: ObjectId,
@@ -25,9 +28,9 @@ const courseSchema = new mongoose.Schema({
 		ref: 'Teacher'
 	},
 	isTeacherBorrowed: {
-        type: Boolean,
-        default: false
-    },
+		type: Boolean,
+		default: false
+	},
 });
 
 module.exports = mongoose.model('Course', courseSchema);

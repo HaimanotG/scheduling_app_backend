@@ -17,7 +17,6 @@ const getCourses = async (req, res, next) => {
                 select: '_id name',
                 populate: {
                     path: 'courses',
-                    select: '_id name credit_hours'
                 }
             }
         }).exec()
@@ -39,33 +38,35 @@ const getCourses = async (req, res, next) => {
         });
 };
 
-const addCourse = async (req, res, next) => {
-    try {
-        const {
-            name,
-            credit_hours,
-            semester
-        } = req.body;
-        if (!name || !credit_hours || !semester) return next(error(400, "Incomplete Form"));
-        const course = await new Course({
-            name,
-            credit_hours,
-            semester
-        }).save();
-        const referenceCourse = await Semester.updateOne({
-            _id: semester
-        }, {
-            $push: {
-                courses: course._id
-            }
-        });
-        if (referenceCourse.nModified <= 0) {
-            await Course.deleteOne({
-                _id: course._id
-            });
-            return next(error(500, "Unable to reference Course"));
+const _createCourses = async courses => {
+    let courseIds = [];
+    for (let course of courses) {
+        courseIds.push(await _createCourse(course));
+    }
+    return courseIds;
+};
+
+const _createCourse = async course => {
+    const {semester} = course;
+    const newCourse = await new Course({
+        ...course
+    }).save();
+    const referenceCourse = await Semester.updateOne({
+        _id: semester
+    }, {
+        $push: {
+            courses: newCourse._id
         }
-        res.status(201).json(course);
+    });
+
+    return newCourse._id;
+};
+
+const addCourse = async (req, res, next) =>  {
+    try {
+        const {courses} = req.body;
+        const courseIds = await _createCourses(courses);
+        res.status(200).json(courses);
     } catch (e) {
         return next(error(e.message))
     }

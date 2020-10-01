@@ -15,7 +15,7 @@ const schedule = async (req, res, next) => {
                 select: '_id name',
                 populate: {
                     path: 'courses',
-                    select: '_id name credit_hours teacher'
+                    select: '_id name totalCreditHours teacher'
                 }
             }
         })

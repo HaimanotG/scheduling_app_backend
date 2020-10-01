@@ -18,35 +18,48 @@ const getRooms = async (req, res, next) => {
         });
 };
 
+const _createRooms = async (rooms, department) => {
+    const roomIds = [];
+    for (let room of rooms) {
+        roomIds.push(await _createRoom(room,department))
+    }
+    return roomIds;
+};
+
+const _createRoom = async ({name,isLab}, department) => {
+    const room = await new Room({
+        name,
+        isLab,
+        department
+    }).save();
+    return room._id;
+};
+
 const addRoom = async (req, res, next) => {
     try {
-        const {
-            name
-        } = req.body;
-        const department = await Department.findOne({
-            head: req.user._id
-        });
+        const {rooms} = req.body;
+
+        const department = await Department.findOne({ head: req.user._id });
         if (!department) return next(error(400, "Unable to find Department!"));
-        const room = await new Room({
-            name,
-            department: department._id,
-        }).save();
-        const referenceRoom = await Department.updateOne({
-            head: req.user._id
-        }, {
+
+        const roomIds = await _createRooms(rooms,department._id);
+        console.log(roomIds);
+        const referenceRoom = await Department.updateOne({head: req.user._id}, {
             $push: {
-                rooms: room._id,
+                rooms: roomIds,
             }
         });
 
         if (referenceRoom.nModified <= 0) {
-            await Room.deleteOne({
-                _id: room._id
-            });
+            for (let roomId of roomIds) {
+                await Room.deleteOne({
+                    _id: roomId
+                });
+            }
             return next(error(500, "Unable to reference room"));
         }
         res.status(201).json({
-            room
+            rooms
         });
     } catch (e) {
         return next(error(e.message))

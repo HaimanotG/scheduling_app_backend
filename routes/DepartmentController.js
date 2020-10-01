@@ -63,6 +63,7 @@ const _createSemester = async (name, batch) => {
 
 const addDepartment = async (req, res, next) => {
     try {
+
         const {
             name,
             head
@@ -172,9 +173,6 @@ const deleteDepartment = async (req, res, next) => {
                 });
                 batch.deleteOne();
             });
-        });
-        await TeacherToCourse.deleteMany({
-            department
         });
         const response = await Department.deleteOne({
             _id: department

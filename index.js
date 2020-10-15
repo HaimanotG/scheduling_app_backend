@@ -10,7 +10,6 @@ const {
 } = require('./enums/roles');
 
 const app = express();
-const port = process.env.PORT || 3000;
 
 require('dotenv').config();
 app.use(require('cors')());
@@ -47,6 +46,7 @@ app.use((error, req, res, next) => {
     });
 });
 
+const port = process.env.PORT || 5000;
 app.listen(port, () => {
     console.log(`App is running on port ${port}`)
 });

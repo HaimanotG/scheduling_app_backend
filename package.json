@@ -1,12 +1,15 @@
 {
   "title": "Scheduling app",
-  "name": "Scheduling-MEARN-Stack-Server",
+  "name": "scheduling-app-server",
   "version": "1.0.0",
   "description": "Class Scheduling app for Haramaya University Using The MERN Stack",
   "main": "index.js",
   "scripts": {
+    "client-install": "npm install --prefix client",
     "start": "node index.js",
-    "dev": "nodemon index.js",
+    "server": "nodemon index.js",
+    "client": "npm start --prefix client",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
     "createsuperuser": "node bin/index.js"
   },
   "keywords": [
@@ -21,6 +24,7 @@
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "concurrently": "^5.3.0",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",

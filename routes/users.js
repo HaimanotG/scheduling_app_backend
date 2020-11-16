@@ -12,15 +12,30 @@ const {
 
 router.get('/', auth, async (req, res, next) => {
     try {
-        let users;
-        if (req.user && req.user.role && req.user.role === ADMIN) {
-            users = await User.find({});
-        } else {
-            users = await User.find({
-                created_by: req.user._id
-            });
+        const query = {}
+        
+        if (req.query.role) {
+            query.role = req.query.role;
         }
-        res.status(200).json(_getUsersWithoutPasswordAndEmail(users));
+
+        if (req.user && req.user.role && req.user.role !== ADMIN) {
+            query.created_by = req.user._id;
+        }
+
+        const users = await User.find(query);
+        res.status(200).json({users: _getUsersWithoutPassword(users)});
+    } catch (e) {
+        return next(error(400, e.message));
+    }
+});
+
+router.get('/:id', auth, async (req, res, next) => {
+    try {
+        const user = await User.findOne({
+            _id: req.params.id,
+            created_by: req.user._id
+        });
+        res.status(200).json({user: user});
     } catch (e) {
         return next(error(400, e.message));
     }
@@ -43,7 +58,7 @@ router.delete('/:id', auth, async (req, res, next) => {
     }
 });
 
-router.patch('/id:', auth, async (req, res, next) => {
+router.patch('/:id', auth, async (req, res, next) => {
     try {
         const response = await User.updateOne({
             _id: req.params.id,
@@ -113,7 +128,7 @@ router.post('/register', auth, async (req, res, next) => {
             created_by: req.user._id,
             role
         }).save();
-        res.status(201).json(_getUserWithoutPasswordAndEmail(newUser));
+        res.status(201).json(_getUserWithoutPassword(newUser));
 
     } catch (e) {
         return next(error(e.message));
@@ -141,24 +156,30 @@ router.post('/login', async (req, res, next) => {
         if (!token) return next(error('Error in generating token'));
 
         res.header('Authorization', token);
-        res.status(200).json(_getUserWithoutPasswordAndEmail(user));
+        res.status(200).json(_getUserWithoutPassword(user));
     } catch (e) {
         return next(error(400, e.message));
     }
 });
 
-const _getUserWithoutPasswordAndEmail = ({
+router.get('/checkSessionToken', auth, async (req,res) => {
+   res.status(200).json({success: true});
+});
+
+const _getUserWithoutPassword = ({
     _id,
     username,
+    email,
     role
 }) => ({
     _id,
     username,
+    email,
     role
 });
 
-const _getUsersWithoutPasswordAndEmail =
+const _getUsersWithoutPassword =
     (users) =>
-    users.map(user => _getUserWithoutPasswordAndEmail(user));
+    users.map(user => _getUserWithoutPassword(user));
 
 module.exports = router;

@@ -3,11 +3,8 @@ const Teacher = require('../models/Teacher');
 const error = require('../error');
 
 const getTeachers = async (req, res, next) => {
-    Department.findOne({head: req.user._id})
-        .populate({
-            path: 'teachers',
-            select: '_id name'
-        })
+    const department = await Department.findOne({head: req.user._id});
+    Teacher.find({department})
         .exec()
         .then((teacher, error) => {
             if (error) throw error;

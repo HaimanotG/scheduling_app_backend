@@ -20,12 +20,23 @@ const getColleges = async (req, res, next) => {
         .exec()
         .then(async (colleges, error) => {
             if (error) throw error;
-            res.status(200).json(colleges);
+            res.status(200).json({colleges});
         })
         .catch(e => {
             return next(400, error(e.message));
         });
 };
+
+const getCollege = async (req, res, next) => {
+    try {
+        const college = await College.findOne({
+            _id: req.params.id,
+        });
+        res.status(200).json({college: college});
+    } catch (e) {
+        return next(error(400, e.message));
+    }
+}
 
 const addCollege = async (req, res, next) => {
     try {
@@ -62,7 +73,7 @@ const deleteCollege = async (req, res, next) => {
         if (response.deletedCount <= 0) {
             return next(error(400, 'Unable to delete College!'));
         }
-        res.status(204).json({success: true});
+        res.status(201).json({success: true});
     } catch (e) {
         return next(error(e.message));
     }
@@ -70,6 +81,7 @@ const deleteCollege = async (req, res, next) => {
 
 module.exports = {
     getColleges,
+    getCollege,
     addCollege,
     deleteCollege,
     updateCollege

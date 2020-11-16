@@ -12,7 +12,12 @@ const {
 const app = express();
 
 require('dotenv').config();
-app.use(require('cors')());
+const corsOptions = {
+    exposedHeaders: 'Authorization',
+};
+
+app.use(require('cors')(corsOptions));
+
 app.use(express.json());
 app.use(express.urlencoded({
     extended: false

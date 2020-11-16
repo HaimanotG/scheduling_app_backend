@@ -27,10 +27,6 @@ const departmentSchema = new mongoose.Schema({
     batches: [{
         type: ObjectId,
         ref: 'Batch'
-    }],
-    teacher_to_courses: [{
-        type: ObjectId,
-        ref: 'TeacherToCourse'
     }]
 });
 

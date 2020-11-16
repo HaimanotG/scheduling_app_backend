@@ -3,13 +3,8 @@ const Room = require('../models/Room');
 const error = require('../error');
 
 const getRooms = async (req, res, next) => {
-    Department.findOne({
-            head: req.user._id
-        })
-        .populate({
-            path: 'rooms',
-            select: '_id name'
-        })
+    const department = await Department.findOne({head: req.user._id});
+    Room.find({department})
         .exec().then((rooms, error) => {
             if (error) throw error;
             res.status(200).json(rooms);

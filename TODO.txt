@@ -1,7 +1,6 @@
 
 # scheduler's input
 department: {
-    room: "",
     batches: [{
         semesters: [{
             courses: [{
@@ -72,6 +71,3 @@ schedule: {
         }]
     }
 }
-// Pseduo code for the algorithm
-var schedule = {};
-const dayOfWeeks = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];

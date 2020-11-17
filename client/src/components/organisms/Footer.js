@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import Container from "../containers/Container";
+import Container from "../../styled-components/Container";
 
 const FooterWrapper = styled.div`
     padding: 20px;

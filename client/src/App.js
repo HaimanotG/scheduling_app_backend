@@ -2,26 +2,26 @@ import React, { Component } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { withRouter, Switch, Route, Redirect } from "react-router-dom";
 
-import GlobalStyles from "../GlobalStyles";
-import { darkTheme, lightTheme } from "../themes";
+import GlobalStyles from "./GlobalStyles";
+import { darkTheme, lightTheme } from "./themes";
 
-import Login from "../components/Login/Login";
-import Admin from "../components/Admin/Admin";
-import Department from "../components/Department/Department";
-import College from "../components/College/College";
+import Login from "./components/pages/Login/Login";
+import Admin from "./components/pages/admin/Admin";
+import Department from "./components/pages/department/Department";
+import College from "./components/pages/college/College";
 
-import localStore from "../utils/localStore";
-import AuthAPI from "../api/AuthAPI";
-import Header from "../components/Header";
+import localStore from "./services/localStore";
+import AuthAPI from "./api/AuthAPI";
+import Header from "./components/organisms/Header";
 
-import UserRole from "../enums/UserRole";
-import Footer from "../components/Footer";
-import CollegeList from "../components/Admin/CollegeList";
-import NotFound from "../NotFound";
-import CollegeCreationForm from "../components/Admin/CollegeCreationForm";
-import DeanList from "../components/Admin/DeanList";
-import UserForm from "../components/UserForm";
-import Home from '../Pages/Home';
+import UserRole from "./enums/UserRole";
+import Footer from "./components/organisms/Footer";
+import CollegeList from "./components/pages/admin/CollegeList";
+import NotFound from "./components/pages/public/NotFound";
+import CollegeCreationForm from "./components/pages/admin/CollegeCreationForm";
+import DeanList from "./components/pages/admin/DeanList";
+import UserForm from "./components/organisms/UserForm";
+import Home from './components/pages/public/Home';
 
 const Page = styled.div`
   display: grid;

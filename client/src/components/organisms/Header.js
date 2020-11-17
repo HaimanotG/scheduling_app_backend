@@ -1,8 +1,8 @@
 import React from 'react'
 import styled from "styled-components";
 import {Link} from "react-router-dom";
-import Container from "../containers/Container";
-import Breadcrumbs from "./BreadCrumbs";
+import Container from "../../styled-components/Container";
+import Breadcrumbs from "../atoms/BreadCrumbs";
 
 const HeaderWrapper = styled.header`
     height: 100px;

@@ -1,15 +1,15 @@
 import React from "react";
-import Container from "../../containers/Container";
-import { Form } from "../atoms/Form";
-import TextInputField from "../atoms/TextInputField";
-import Wrapper from "../../containers/Wrapper";
-import Button from "../atoms/Button";
-import Select from "../atoms/Select";
-import AdminAPI from "../../api/AdminAPI";
-import Spinner from "../Spinner";
-import ErrorBox from "../ErrorBox";
-import UserAPI from "../../api/UserAPI";
-import UserRole from "../../enums/UserRole";
+import Container from "../../../styled-components/Container";
+import { Form } from "../../../styled-components/Form";
+import TextInputField from "../../atoms/TextInputField";
+import Wrapper from "../../../styled-components/Wrapper";
+import Button from "../../atoms/Button";
+import Select from "../../atoms/Select";
+import AdminAPI from "../../../api/AdminAPI";
+import Spinner from "../../../styled-components/Spinner";
+import ErrorBox from "../../atoms/ErrorBox";
+import UserAPI from "../../../api/UserAPI";
+import UserRole from "../../../enums/UserRole";
 
 const initialState = {
     name: "",

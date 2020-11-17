@@ -1,5 +1,5 @@
 import request from "./";
-import getAuthHeader from "../utils/getAuthHeader";
+import getAuthHeader from "../services/getAuthHeader";
 import constructResolve from "./constructResolve";
 
 export default {

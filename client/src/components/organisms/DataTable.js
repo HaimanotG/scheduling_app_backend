@@ -8,7 +8,7 @@ const StyledTable = styled.table`
   border-radius: 5px;
   box-shadow: var(--default-box-shadow);
   overflow-x: auto;
-//   border-collapse: collapse;
+  border-collapse: collapse;
   border-spacing: 0;
 
   thead {

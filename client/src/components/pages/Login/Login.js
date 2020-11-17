@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { Form } from "../atoms/Form";
-import TextInputField from "../Form/TextInputField";
-import AuthAPI from "../../api/AuthAPI";
-import Spinner from "../Spinner";
-import ErrorBox from "../ErrorBox";
-import Button from "../Form/Button";
+import { Form } from "../../../styled-components/Form";
+import TextInputField from "../../atoms/TextInputField";
+import AuthAPI from "../../../api/AuthAPI";
+import Spinner from "../../../styled-components/Spinner";
+import ErrorBox from "../../atoms/ErrorBox";
+import Button from "../../atoms/Button";
 
 const LoginWrapper = styled.div`
     width: 95%;

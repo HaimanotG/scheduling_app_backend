@@ -1,13 +1,13 @@
 import React from "react";
 
-import Container from "../../containers/Container";
-import Button from "../atoms/Button";
-import AdminAPI from "../../api/AdminAPI";
-import withDataFetching from "../../withDataFetching";
-import Spinner from "../Spinner";
-import ErrorBox from "../ErrorBox";
-import DataTable from "../DataTable";
-import StyledLink from "../StyledLink";
+import Container from "../../../styled-components/Container";
+import Button from "../../atoms/Button";
+import AdminAPI from "../../../api/AdminAPI";
+import withDataFetching from "../../../withDataFetching";
+import Spinner from "../../../styled-components/Spinner";
+import ErrorBox from "../../atoms/ErrorBox";
+import DataTable from "../../organisms/DataTable";
+import StyledLink from "../../../styled-components/StyledLink";
 
 const colList = [
     {

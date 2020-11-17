@@ -1,8 +1,8 @@
 import React from 'react';
 import styled from "styled-components";
 import PropTypes from 'prop-types';
-import FormGroup from './FormGroup';
-import Label from './Label';
+import FormGroup from '../../styled-components/FormGroup';
+import Label from '../../styled-components/Label';
 
 const Input = styled.input`
     padding: 1em;

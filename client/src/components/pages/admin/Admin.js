@@ -1,13 +1,13 @@
 import React from 'react';
 import {Link} from "react-router-dom";
 import styled from "styled-components";
-import withDataFetching from "../../withDataFetching";
-import Container from "../../containers/Container";
-import Wrapper from "../../containers/Wrapper";
+import withDataFetching from "../../../withDataFetching";
+import Container from "../../../styled-components/Container";
+import Wrapper from "../../../styled-components/Wrapper";
 
-import AdminAPI from "../../api/AdminAPI";
-import Spinner from "../Spinner";
-import ErrorBox from "../ErrorBox";
+import AdminAPI from "../../../api/AdminAPI";
+import Spinner from "../../../styled-components/Spinner";
+import ErrorBox from "../../atoms/ErrorBox";
 
 const AdminHeader = styled.h4`
     background: var(--primary);

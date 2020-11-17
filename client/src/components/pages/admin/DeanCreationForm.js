@@ -1,12 +1,13 @@
 import React from "react";
-import Container from "./../containers/Container";
-import { Form } from "./atoms/Form";
-import TextInputField from "./Form/TextInputField";
-import Wrapper from "./../containers/Wrapper";
-import Button from "./Form/Button";
-import Spinner from "./Spinner";
-import ErrorBox from "./ErrorBox";
-import UserAPI from "../api/UserAPI";
+import Container from "../../containers/Container";
+import { Form } from "../../../styled-components/Form";
+import TextInputField from "../../atoms/TextInputField";
+import Wrapper from "../../containers/Wrapper";
+import Button from "../../atoms/Button";
+import Spinner from "../Spinner";
+import AuthAPI from "../../../api/AuthAPI";
+import ErrorBox from "../../atoms/ErrorBox";
+import AdminAPI from "../../../api/AdminAPI";
 
 const initialState = {
     username: "",
@@ -16,19 +17,19 @@ const initialState = {
     loading: false
 };
 
-class UserForm extends React.Component {
+class DeanCreationForm extends React.Component {
     state = initialState;
 
     async componentDidMount() {
         if (this.props.isEditing) {
-            const { success, data, error } = await UserAPI.getUser(
-                this.props.match.params.userId
+            const { success, data, error } = await AdminAPI.getDean(
+                this.props.match.params.deanId
             );
-            if (success && data.user !== null) {
-                const user = data.user;
+            if (success && data.dean.user !== null) {
+                const dean = data.dean.user;
                 let defaultState = {};
                 Object.keys(initialState).forEach(key => {
-                    defaultState[key] = user[key] || initialState[key];
+                    defaultState[key] = dean[key] || initialState[key];
                 });
                 this.setState(defaultState);
             } else {
@@ -45,10 +46,10 @@ class UserForm extends React.Component {
         e.preventDefault();
         const { username, email, password } = this.state;
         if (this.props.isEditing) {
-            const { success, error } = await UserAPI.updateUser(
+            const { success, error } = await AdminAPI.updateDean(
                 username,
                 email,
-                this.props.match.params.userId
+                this.props.match.params.deanId
             );
             if (success) {
                 this.props.history.push("/admin/dean");
@@ -56,7 +57,7 @@ class UserForm extends React.Component {
                 this.setState({ ...this.state, error });
             }
         } else {
-            const { success, error } = await UserAPI.register(
+            const { success, error } = await AuthAPI.register(
                 username,
                 email,
                 password
@@ -73,16 +74,14 @@ class UserForm extends React.Component {
         state.username.length > 3 &&
         state.email.length > 10 &&
         state.password.length > 6;
-
     handleDelete = async () => {
-        const { success, error } = await UserAPI.deleteUser(this.props.match.params.userId);
+        const { success, error } = await AuthAPI.deleteUser(this.props.match.params.deanId);
         if (success) {
             this.props.history.push("/admin/dean");
         } else {
             this.setState({ ...this.state, error });
         }
     }
-
     render() {
         const enabled = this.isFormValid(this.state);
 
@@ -120,10 +119,9 @@ class UserForm extends React.Component {
                             disabled={!enabled}
                         />
                         {this.props.isEditing &&
-                            <Button label={"Delete User"} block subtle sm
-                                color={"rgb(255,10,20)"} onClick={this.handleDelete} />}
+                            <Button style={{ display: 'block' }} label={"Delete Dean"}
+                                warning onClick={this.handleDelete} />}
                         {this.state.error && <ErrorBox label={this.state.error} />}
-
                     </Form>
                 </Wrapper>
             </Container>
@@ -131,4 +129,4 @@ class UserForm extends React.Component {
     }
 }
 
-export default UserForm;
+export default DeanCreationForm;

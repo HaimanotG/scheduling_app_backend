@@ -1,5 +1,5 @@
 import request from "./";
-import getAuthHeader from "../utils/getAuthHeader";
+import getAuthHeader from "../services/getAuthHeader";
 
 export default {
   login: (email, password) =>

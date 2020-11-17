@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
-import FormGroup from "./FormGroup";
-import Label from "./Label";
+import FormGroup from "../../styled-components/FormGroup";
+import Label from "../../styled-components/Label";
 
 const StyledSelect = styled.select`
 //   appearance: none;

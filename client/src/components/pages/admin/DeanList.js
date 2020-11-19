@@ -1,15 +1,13 @@
 import React from "react";
 
-import Container from "../../../styled-components/Container";
-import Button from "../../atoms/Button";
-import UserAPI from "../../../api/UserAPI";
 import withDataFetching from "../../../withDataFetching";
-import Spinner from "../../../styled-components/Spinner";
-import ErrorBox from "../../atoms/ErrorBox";
+import UserAPI from "../../../api/UserAPI";
 import UserRole from "../../../enums/UserRole";
+import Button from "../../atoms/Button";
+import ErrorBox from "../../atoms/ErrorBox";
 import DataTable from "../../organisms/DataTable";
-import StyledLink from "../../../styled-components/StyledLink";
 
+import { StyledLink, Container, Spinner } from '../../styled-components';
 const cols = [
     {
         title: "Username",
@@ -25,15 +23,13 @@ const cols = [
     }
 ];
 
-const DeanList = ({ data, error, loading, ...props }) => {
-    const { users } = data;
-
+const DeanList = ({ data: { users }, error, loading, ...props }) => {
     const handleAdd = e => {
         e.preventDefault();
         props.history.push("/admin/dean/add");
     };
 
-    if (loading || data.length === 0) {
+    if (loading || users === undefined) {
         return <Spinner />;
     }
 

@@ -1,8 +1,7 @@
 import React from 'react';
 import styled from "styled-components";
 import PropTypes from 'prop-types';
-import FormGroup from '../../styled-components/FormGroup';
-import Label from '../../styled-components/Label';
+import { FormGroup, Label } from '../styled-components';
 
 const Input = styled.input`
     padding: 1em;
@@ -19,12 +18,12 @@ const Input = styled.input`
     }
 `;
 
-const TextInputField = ({name, type = "text", onChange, required=true, value = ""}) => {
+const TextInputField = ({ name, type = "text", onChange, required = true, value = "" }) => {
     return (
         <FormGroup>
             <Input type={type} name={name} id={name} value={value}
-                   onChange={onChange} required={required}/>
-            <Label htmlFor = {name} data-label={name}/>
+                onChange={onChange} required={required} />
+            <Label htmlFor={name} data-label={name} />
         </FormGroup>
     )
 };

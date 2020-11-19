@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from "styled-components";
 import {Link} from "react-router-dom";
-import Container from "../../styled-components/Container";
+import Container from "../styled-components/Container";
 import Breadcrumbs from "../atoms/BreadCrumbs";
 
 const HeaderWrapper = styled.header`

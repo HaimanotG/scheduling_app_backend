@@ -1,15 +1,13 @@
 import React from "react";
-import Container from "../../../styled-components/Container";
-import { Form } from "../../../styled-components/Form";
 import TextInputField from "../../atoms/TextInputField";
-import Wrapper from "../../../styled-components/Wrapper";
 import Button from "../../atoms/Button";
 import Select from "../../atoms/Select";
 import AdminAPI from "../../../api/AdminAPI";
-import Spinner from "../../../styled-components/Spinner";
 import ErrorBox from "../../atoms/ErrorBox";
 import UserAPI from "../../../api/UserAPI";
 import UserRole from "../../../enums/UserRole";
+
+import { Form, Container, Wrapper, Spinner } from '../../styled-components';
 
 const initialState = {
     name: "",
@@ -45,9 +43,8 @@ class CollegeCreationForm extends React.Component {
         this.setState({ loading: true });
         await this._populateDefault();
         if (this.props.isEditing) {
-            let { success, data, error } = await AdminAPI.getCollege(this.props.match.params.collegeId);
-            if (success && data.college !== null) {
-                const college = data.college;
+            let { success, data: {college}, error } = await AdminAPI.getCollege(this.props.match.params.collegeId);
+            if (success && college !== null) {
                 let defaultState = {};
                 Object.keys(initialState).forEach(key => {
                     defaultState[key] = college[key] || this.state[key];

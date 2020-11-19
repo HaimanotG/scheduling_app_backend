@@ -5,8 +5,6 @@ import { withRouter, Switch, Route, Redirect } from "react-router-dom";
 import GlobalStyles from "./GlobalStyles";
 import { darkTheme, lightTheme } from "./themes";
 
-import Login from "./components/pages/Login/Login";
-import Admin from "./components/pages/admin/Admin";
 import Department from "./components/pages/department/Department";
 import College from "./components/pages/college/College";
 
@@ -16,12 +14,16 @@ import Header from "./components/organisms/Header";
 
 import UserRole from "./enums/UserRole";
 import Footer from "./components/organisms/Footer";
-import CollegeList from "./components/pages/admin/CollegeList";
-import NotFound from "./components/pages/public/NotFound";
-import CollegeCreationForm from "./components/pages/admin/CollegeCreationForm";
-import DeanList from "./components/pages/admin/DeanList";
 import UserForm from "./components/organisms/UserForm";
-import Home from './components/pages/public/Home';
+
+import {
+  Admin,
+  DeanList,
+  CollegeCreationForm,
+  CollegeList
+} from "./components/pages/admin";
+
+import { Home, NotFound, Login } from "./components/pages/public";
 
 const Page = styled.div`
   display: grid;
@@ -35,128 +37,136 @@ const MainContent = styled.main`
 `;
 
 class App extends Component {
-    state = {
-        user: undefined,
-        theme: "light"
-    };
+  state = {
+    user: undefined,
+    theme: "light"
+  };
 
-    redirectTo = userRole => {
-        if (userRole === UserRole.ADMIN) {
-            return "/admin/college";
-        } else if (userRole === UserRole.DEAN) {
-            return "/college";
-        } else {
-            return "/department";
-        }
-    };
-
-    async componentDidMount() {
-        const user = await localStore.get("user");
-        if (user && user.sessionToken) {
-            const { success } = await AuthAPI.checkSessionTokenMocked();
-            if (success) {
-                this.setState({ user });
-                this.props.history.push(this.redirectTo(user.role));
-            } else {
-                await localStore.remove("user");
-            }
-        }
-        const localMode = window.localStorage.getItem("theme");
-        localMode ? this.setTheme(localMode) : this.setTheme("light");
+  redirectTo = userRole => {
+    if (userRole === UserRole.ADMIN) {
+      return "/admin/college";
+    } else if (userRole === UserRole.DEAN) {
+      return "/college";
+    } else {
+      return "/department";
     }
+  };
 
-    setTheme = theme => {
-        window.localStorage.setItem("theme", theme);
-        this.setState({ theme });
-    };
-
-    toggleTheme = () =>
-        this.state.theme === "light"
-            ? this.setTheme("dark")
-            : this.setTheme("light");
-
-    handleLogin = user => {
-        localStore.set("user", user);
+  async componentDidMount() {
+    const user = await localStore.get("user");
+    if (user && user.sessionToken) {
+      const { success } = await AuthAPI.checkSessionTokenMocked();
+      if (success) {
         this.setState({ user });
         this.props.history.push(this.redirectTo(user.role));
-    };
-
-    handleLogout = e => {
-        e.preventDefault();
-        localStore.remove("user");
-        this.setState({ user: undefined });
-        this.props.history.push("/");
-    };
-
-    routes = [
-        { path: "/admin", component: Admin, role: UserRole.ADMIN },
-        { path: "/admin/dean", component: DeanList, role: UserRole.ADMIN },
-        { path: "/admin/dean/add", component: UserForm, role: UserRole.ADMIN },
-        { path: "/admin/dean/:userId/edit", component: UserForm, isEditing: true, role: UserRole.ADMIN },
-        { path: "/admin/college", component: CollegeList, role: UserRole.ADMIN },
-        { path: "/admin/college/add", component: CollegeCreationForm, role: UserRole.ADMIN },
-        {
-            path: "/admin/college/:collegeId/edit",
-            component: CollegeCreationForm,
-            isEditing: true, role: UserRole.ADMIN
-        }
-    ];
-
-    render() {
-        const themeMode = this.state.theme === "light" ? lightTheme : darkTheme;
-        const isLoggedIn = this.state.user && this.state.user.sessionToken;
-        const username = isLoggedIn ? this.state.user.username : "";
-        const role = this.state.user && this.state.user.role;
-
-        return (
-            <ThemeProvider theme={themeMode}>
-                <GlobalStyles />
-                <Page>
-                    <Header
-                        isLoggedIn={isLoggedIn}
-                        username={username}
-                        onLogout={this.handleLogout}
-                        path={this.props.location.pathname}
-                    />
-                    <MainContent>
-                        <Switch>
-                            <Route
-                                exact
-                                path="/"
-                                component={() => <Home/>}
-                            />
-                            {this.routes.map(route => (
-                                <Route
-                                    key={route.path}
-                                    exact
-                                    path={route.path}
-                                    component={props =>
-                                        isLoggedIn && role === route.role ? (
-                                            <route.component {...props} isEditing={route.isEditing} />
-                                        ) : <Redirect to="/" />
-                                    }
-                                />
-                            ))}
-                            <Route path="/college" component={College} />
-                            <Route path="/department" component={Department} />
-                            <Route
-                                path="/login"
-                                component={() =>
-                                    isLoggedIn ? (
-                                        <Redirect to="/" />
-                                    ) : (
-                                            <Login onLogin={this.handleLogin} />
-                                        )
-                                }
-                            />
-                            <Route component={NotFound} />
-                        </Switch>
-                    </MainContent>
-                    <Footer />
-                </Page>
-            </ThemeProvider>
-        );
+      } else {
+        await localStore.remove("user");
+      }
     }
+    const localMode = window.localStorage.getItem("theme");
+    localMode ? this.setTheme(localMode) : this.setTheme("light");
+  }
+
+  setTheme = theme => {
+    window.localStorage.setItem("theme", theme);
+    this.setState({ theme });
+  };
+
+  toggleTheme = () =>
+    this.state.theme === "light"
+      ? this.setTheme("dark")
+      : this.setTheme("light");
+
+  handleLogin = user => {
+    localStore.set("user", user);
+    this.setState({ user });
+    this.props.history.push(this.redirectTo(user.role));
+  };
+
+  handleLogout = e => {
+    e.preventDefault();
+    localStore.remove("user");
+    this.setState({ user: undefined });
+    this.props.history.push("/");
+  };
+
+  privateRoutes = [
+    { path: "/admin", component: Admin, role: UserRole.ADMIN },
+    { path: "/admin/dean", component: DeanList, role: UserRole.ADMIN },
+    { path: "/admin/dean/add", component: UserForm, role: UserRole.ADMIN },
+    {
+      path: "/admin/dean/:userId/edit",
+      component: UserForm,
+      isEditing: true,
+      role: UserRole.ADMIN
+    },
+    { path: "/admin/college", component: CollegeList, role: UserRole.ADMIN },
+    {
+      path: "/admin/college/add",
+      component: CollegeCreationForm,
+      role: UserRole.ADMIN
+    },
+    {
+      path: "/admin/college/:collegeId/edit",
+      component: CollegeCreationForm,
+      isEditing: true,
+      role: UserRole.ADMIN
+    }
+  ];
+
+  render() {
+    const themeMode = this.state.theme === "light" ? lightTheme : darkTheme;
+    const isLoggedIn = this.state.user && this.state.user.sessionToken;
+    const username = isLoggedIn ? this.state.user.username : "";
+    const role = this.state.user && this.state.user.role;
+
+    return (
+      <ThemeProvider theme={themeMode}>
+        <GlobalStyles />
+        <Page>
+          <Header
+            isLoggedIn={isLoggedIn}
+            username={username}
+            onLogout={this.handleLogout}
+            path={this.props.location.pathname}
+          />
+          <MainContent>
+            <Switch>
+              <Route exact path="/" component={() => <Home />} />
+              {this.privateRoutes.map(route => (
+                <Route
+                  key={route.path}
+                  exact
+                  path={route.path}
+                  component={props =>
+                    isLoggedIn && role === route.role ? (
+                      <route.component {...props} isEditing={route.isEditing} />
+                    ) : (
+                      <Redirect to="/" />
+                    )
+                  }
+                />
+              ))}
+              <Route path="/college" component={College} />
+              <Route path="/department" component={Department} />
+              <Route
+                path="/login"
+                component={() =>
+                  isLoggedIn ? (
+                    <Redirect to="/" />
+                  ) : (
+                    <Login onLogin={this.handleLogin} />
+                  )
+                }
+              />
+              <Route component={NotFound} />
+            </Switch>
+          </MainContent>
+          <Footer />
+        </Page>
+      </ThemeProvider>
+    );
+  }
 }
 
 export default withRouter(App);

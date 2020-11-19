@@ -1,12 +1,10 @@
 import React from "react";
-import Container from "../../styled-components/Container";
-import { Form } from "../../styled-components/Form";
 import TextInputField from "../atoms/TextInputField";
-import Wrapper from "../../styled-components/Wrapper";
 import Button from "../atoms/Button";
-import Spinner from "../../styled-components/Spinner";
 import ErrorBox from "../atoms/ErrorBox";
 import UserAPI from "../../api/UserAPI";
+
+import { Form, Container, Wrapper, Spinner } from '../styled-components';
 
 const initialState = {
     username: "",

@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { Form } from "../../../styled-components/Form";
 import TextInputField from "../../atoms/TextInputField";
 import AuthAPI from "../../../api/AuthAPI";
-import Spinner from "../../../styled-components/Spinner";
 import ErrorBox from "../../atoms/ErrorBox";
 import Button from "../../atoms/Button";
+
+import { Spinner, Form } from '../../styled-components';
 
 const LoginWrapper = styled.div`
     width: 95%;
@@ -57,9 +57,11 @@ const Login = ({ onLogin }) => {
     };
 
     const enabled = isFormValid(state);
+
     if (state.loading) {
         return <Spinner />;
     }
+    
     return (
         <LoginWrapper>
             <Form onSubmit={handleSubmit}>

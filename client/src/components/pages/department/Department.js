@@ -1,7 +1,6 @@
 import React from 'react';
-import styled from 'styled-components';
-import Container from "../../../styled-components/Container";
-import Wrapper from "../../../styled-components/Wrapper";
+
+import { Container, Wrapper } from '../../styled-components'
 
 const Department = () => {
     return (

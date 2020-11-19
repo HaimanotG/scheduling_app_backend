@@ -1,13 +1,8 @@
 import React from 'react';
 import {Link} from "react-router-dom";
 import styled from "styled-components";
-import withDataFetching from "../../../withDataFetching";
-import Container from "../../../styled-components/Container";
-import Wrapper from "../../../styled-components/Wrapper";
-
-import AdminAPI from "../../../api/AdminAPI";
-import Spinner from "../../../styled-components/Spinner";
-import ErrorBox from "../../atoms/ErrorBox";
+import Container from "../../styled-components/Container";
+import Wrapper from "../../styled-components/Wrapper";
 
 const AdminHeader = styled.h4`
     background: var(--primary);
@@ -70,14 +65,7 @@ const Actions = styled.div`
     }
 `;
 
-const Admin = ({data, error, loading}) => {
-    if (loading || data.length === 0) {
-        return <Spinner/>
-    }
-
-    if (error) {
-        return <ErrorBox label={error}/>
-    }
+const Admin = () => {
 
     return (
         <Container>
@@ -104,4 +92,4 @@ const Admin = ({data, error, loading}) => {
     )
 };
 
-export default withDataFetching(Admin,AdminAPI.getCollegesMocked);
+export default Admin;

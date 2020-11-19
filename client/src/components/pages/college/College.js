@@ -1,6 +1,6 @@
 import React from 'react'
-import Container from "../../../styled-components/Container";
-import Wrapper from "../../../styled-components/Wrapper";
+import Container from "../../styled-components/Container";
+import Wrapper from "../../styled-components/Wrapper";
 const College = () => {
     return (
         <Container>

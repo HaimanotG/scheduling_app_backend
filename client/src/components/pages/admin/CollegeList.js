@@ -1,13 +1,12 @@
 import React from "react";
 
-import Container from "../../../styled-components/Container";
 import Button from "../../atoms/Button";
 import AdminAPI from "../../../api/AdminAPI";
 import withDataFetching from "../../../withDataFetching";
-import Spinner from "../../../styled-components/Spinner";
 import ErrorBox from "../../atoms/ErrorBox";
 import DataTable from "../../organisms/DataTable";
-import StyledLink from "../../../styled-components/StyledLink";
+
+import { Container, Spinner, StyledLink } from '../../styled-components';
 
 const colList = [
     {
@@ -28,21 +27,21 @@ const colList = [
     }
 ];
 
-const makeColleges = data =>
-    data.colleges.map(college => ({
+const makeColleges = colleges =>
+    colleges.map(college => ({
         _id: college._id,
         name: college.name,
         dean: college.dean ? college.dean.username : "UNASSIGNED",
         departments: college.departments.length
     }));
 
-const CollegeList = ({ data, error, loading, ...props }) => {
+const CollegeList = ({ data: { colleges }, error, loading, ...props }) => {
     const handleAdd = e => {
         e.preventDefault();
         props.history.push("/admin/college/add");
     };
 
-    if (loading || data.length === 0) {
+    if (loading || colleges === undefined) {
         return <Spinner />;
     }
 
@@ -53,9 +52,9 @@ const CollegeList = ({ data, error, loading, ...props }) => {
     return (
         <Container>
             <div style={{ display: "flex", flexFlow: "row-reverse", margin: "1px" }}>
-                <Button label={"Add College"} onClick={handleAdd} accent />
+                <Button label={"Add College +"} onClick={handleAdd} primary />
             </div>
-            <DataTable data={makeColleges(data)} cols={colList} />
+            <DataTable data={makeColleges(colleges)} cols={colList} />
         </Container>
     );
 };

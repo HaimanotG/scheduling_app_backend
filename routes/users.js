@@ -10,6 +10,10 @@ const {
     HEAD
 } = require('../enums/roles');
 
+router.get('/checkSessionToken', auth, async (req,res) => {
+   res.status(200).json({success: true});
+});
+
 router.get('/', auth, async (req, res, next) => {
     try {
         const query = {}
@@ -160,10 +164,6 @@ router.post('/login', async (req, res, next) => {
     } catch (e) {
         return next(error(400, e.message));
     }
-});
-
-router.get('/checkSessionToken', auth, async (req,res) => {
-   res.status(200).json({success: true});
 });
 
 const _getUserWithoutPassword = ({

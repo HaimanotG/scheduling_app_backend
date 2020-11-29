@@ -21,7 +21,7 @@ const UserSchema = new mongoose.Schema({
     role: {
         type: String,
         required: true,
-        enum: ['admin', 'dean', 'head']
+        enum: ['su', 'admin', 'head']
     }
 });
 

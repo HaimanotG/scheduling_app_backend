@@ -1,4 +1,3 @@
-'use strict';
 const mongoose = require('mongoose');
 const User = require('../models/User');
 
@@ -14,7 +13,7 @@ const validate = (field, data) => {
     if (!data || data.length <= 0) errors.push(`Field ${field} is empty`);
     switch (field) {
         case 'email':
-            User.findOne({email: data}, (error, user) => {
+            User.findOne({ email: data }, (error, user) => {
                 if (error) errors.push(error);
                 if (user) errors.push("User Already Registered")
             });
@@ -57,7 +56,7 @@ const prompt = () => {
                         rl.close();
                     }
                     try {
-                        await new User({username, email, password, role: 'admin'}).save();
+                        await new User({ username, email, password, role: 'su' }).save();
                         console.log("Super User Created!");
                     } catch (e) {
                         console.log(e);

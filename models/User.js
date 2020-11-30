@@ -1,13 +1,9 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const ObjectId = mongoose.Schema.Types.ObjectId;
+// const ObjectId = mongoose.Schema.Types.ObjectId;
 
 const UserSchema = new mongoose.Schema({
     username: {
-        type: String,
-        required: true
-    },
-    email: {
         type: String,
         required: true
     },
@@ -15,13 +11,22 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    created_by: {
-        type: ObjectId
+    email: {
+        type: String,
+        // required: true
+    },
+    firstName: {
+        type: String,
+    },
+    lastName: {
+        type: String,
     },
     role: {
         type: String,
-        required: true,
         enum: ['su', 'admin', 'head']
+    },
+    active: {
+        type: Boolean,
     }
 });
 

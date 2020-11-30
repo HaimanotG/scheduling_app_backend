@@ -3,31 +3,22 @@ const jwt = require('jsonwebtoken');
 
 const User = require('../models/User');
 const auth = require('../middlewares/auth');
+const permit = require('../middlewares/permit');
 const error = require('../error');
 const {
+    SU,
     ADMIN,
-    DEAN,
     HEAD
 } = require('../enums/roles');
 
-router.get('/checkSessionToken', auth, async (req,res) => {
-   res.status(200).json({success: true});
+router.get('/checkSessionToken', auth, async (req, res) => {
+    res.status(200).json({ success: true });
 });
 
 router.get('/', auth, async (req, res, next) => {
     try {
-        const query = {}
-        
-        if (req.query.role) {
-            query.role = req.query.role;
-        }
-
-        if (req.user && req.user.role && req.user.role !== ADMIN) {
-            query.created_by = req.user._id;
-        }
-
-        const users = await User.find(query);
-        res.status(200).json({users: _getUsersWithoutPassword(users)});
+        const users = await User.find().select('-password');
+        res.status(200).json({ users });
     } catch (e) {
         return next(error(400, e.message));
     }
@@ -36,10 +27,9 @@ router.get('/', auth, async (req, res, next) => {
 router.get('/:id', auth, async (req, res, next) => {
     try {
         const user = await User.findOne({
-            _id: req.params.id,
-            created_by: req.user._id
-        });
-        res.status(200).json({user: user});
+            _id: req.params.id
+        }).select('-password');
+        res.status(200).json({ user });
     } catch (e) {
         return next(error(400, e.message));
     }
@@ -48,8 +38,7 @@ router.get('/:id', auth, async (req, res, next) => {
 router.delete('/:id', auth, async (req, res, next) => {
     try {
         const response = await User.deleteOne({
-            _id: req.params.id,
-            created_by: req.user._id
+            _id: req.params.id
         });
         if (response.deletedCount <= 0) {
             return next(error(400, 'Unable to delete User!'));
@@ -65,8 +54,7 @@ router.delete('/:id', auth, async (req, res, next) => {
 router.patch('/:id', auth, async (req, res, next) => {
     try {
         const response = await User.updateOne({
-            _id: req.params.id,
-            created_by: req.user._id
+            _id: req.params.id
         }, {
             $set: req.body
         });
@@ -82,6 +70,9 @@ router.patch('/:id', auth, async (req, res, next) => {
 });
 
 router.patch('/change-password/:id', auth, async (req, res, next) => {
+    if(req.params.id !== req.user._id) {
+        return next(error(404, "Access Denied"))
+    }
     try {
         const {
             oldPassword,
@@ -91,7 +82,7 @@ router.patch('/change-password/:id', auth, async (req, res, next) => {
         const user = await User.findOne({
             _id: id
         });
-        if (!user) return next(400, error("User not Registered"));
+        if (!user) return next(error(400,"User not Registered"));
         if (!user.comparePassword(oldPassword)) return next(error(400, 'Invalid Password'));
         const response = await User.updateOne({
             _id: id
@@ -111,26 +102,22 @@ router.patch('/change-password/:id', auth, async (req, res, next) => {
     }
 });
 
-router.post('/register', auth, async (req, res, next) => {
+router.post('/register', auth, permit([SU, ADMIN]), async (req, res, next) => {
     try {
         const {
             username,
-            email,
             password
         } = req.body;
-        if (!username || !email || !password) return next(error(400, 'Incomplete form'));
+        if (!username || !password) return next(error(400, 'Incomplete form'));
 
         const userExisted = await User.findOne({
-            email
+            username
         });
-        if (userExisted) return next(error(400, "User already existed"));
-        const role = req.user.role === ADMIN ? DEAN : HEAD;
+        if (userExisted) return next(error(400, "User already Registered"));
+        
         const newUser = await new User({
             username,
-            email,
-            password,
-            created_by: req.user._id,
-            role
+            password
         }).save();
         res.status(201).json(_getUserWithoutPassword(newUser));
 
@@ -142,14 +129,15 @@ router.post('/register', auth, async (req, res, next) => {
 router.post('/login', async (req, res, next) => {
     try {
         const {
-            email,
+            username,
             password
         } = req.body;
-        if (!email || !password) return next(error("Form is not complete!"));
+        if (!username || !password) return next(error("Form is not complete!"));
 
         const user = await User.findOne({
-            email
+            username
         });
+
         if (!user) return next(error(400, "User is not registered"));
         if (!user.comparePassword(password)) return next(error(400, 'Invalid Password'));
 
@@ -159,7 +147,7 @@ router.post('/login', async (req, res, next) => {
         }, process.env.SECRET);
         if (!token) return next(error('Error in generating token'));
 
-        res.header('Authorization', token);
+        res.header('x-auth-token', token);
         res.status(200).json(_getUserWithoutPassword(user));
     } catch (e) {
         return next(error(400, e.message));
@@ -177,9 +165,5 @@ const _getUserWithoutPassword = ({
     email,
     role
 });
-
-const _getUsersWithoutPassword =
-    (users) =>
-    users.map(user => _getUserWithoutPassword(user));
 
 module.exports = router;

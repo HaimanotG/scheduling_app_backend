@@ -3,7 +3,7 @@
  */
 
 module.exports = Object.freeze({
-    ADMIN: "admin",
-    DEAN: "dean",
-    HEAD: "head"
+  SU: 'su',
+  ADMIN: 'admin',
+  HEAD: 'head'
 });

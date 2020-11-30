@@ -6,7 +6,7 @@ const Teacher = require('../models/Teacher');
 const Room = require('../models/Room');
 const User = require('../models/User');
 const Course = require('../models/Course');
-const TeacherToCourse = require('../models/TeacherToCourse');
+// const TeacherToCourse = require('../models/TeacherToCourse');
 
 const error = require('../error');
 
@@ -63,7 +63,6 @@ const _createSemester = async (name, batch) => {
 
 const addDepartment = async (req, res, next) => {
     try {
-
         const {
             name,
             head
@@ -78,13 +77,13 @@ const addDepartment = async (req, res, next) => {
         });
         if (isHeadOccupied) return next(error(400, 'Head is already Occupied'));
         let batches = [];
-        const college = await College.findOne({
-            dean: req.user._id
-        });
+        // const college = await College.findOne({
+        //     dean: req.user._id
+        // });
 
         const department = await new Department({
             name,
-            college: college._id,
+            // college: college._id,
             head
         }).save();
 
@@ -99,27 +98,19 @@ const addDepartment = async (req, res, next) => {
                 batches: batches
             }
         });
-        await College.updateOne({
-            dean: req.user._id
-        }, {
-            $push: {
-                departments: department._id,
-            }
-        });
+        // await College.updateOne({
+        //     dean: req.user._id
+        // }, {
+        //     $push: {
+        //         departments: department._id,
+        //     }
+        // });
         Department.findOne({
                 _id: department._id
             })
-            .populate({
-                path: 'batches',
-                select: '_id name',
-                populate: {
-                    path: 'semesters',
-                    select: '_id name'
-                }
-            })
             .exec()
             .then((department) => {
-                res.status(201).json(department);
+                res.status(201).json({department});
             })
             .catch(e => {
                 return next(error(e.message))

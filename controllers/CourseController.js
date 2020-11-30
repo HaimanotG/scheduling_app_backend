@@ -158,7 +158,7 @@ const assignTeacherToCourses = async (req, res, next) => {
 const removeTeacherFromCourse = async (req, res, next) => {
     try {
         const response = await Course.updateOne({
-            _id: req.params.courseId
+            _id: req.params.id
         }, {
             $set: {
                 teacher: null
@@ -178,7 +178,7 @@ const removeTeacherFromCourse = async (req, res, next) => {
 const changeTeacherForCourse = async (req, res, next) => {
     try {
         const response = await Course.updateOne({
-            _id: req.params.courseId
+            _id: req.params.id
         }, {
             $set: req.body
         });

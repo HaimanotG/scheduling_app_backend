@@ -1,5 +1,5 @@
 const Schedule = require("../models/Schedule");
-const Department = require("../models/Department");
+
 const {
   startSchedule
 } = require("../Scheduler");

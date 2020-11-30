@@ -37,13 +37,9 @@ schedule: {
             "username": "Haimanot Getu",
             "email": "haimanotgetu18@gmail.com",
             "password": "superadminpassword",
-            "created_by": "none",
             "role": "admin"
         }],
-        "college": [{
-            "name": "College of Computing and Informatics",
-            "dean": "Sami",
-            "departments": [{
+        "departments": [{
                 "name": "Software Engineering",
                 "head": "Afendi B",
                 "workDays": 5,
@@ -68,6 +64,5 @@ schedule: {
                     }]
                 }]
             }]
-        }]
     }
 }

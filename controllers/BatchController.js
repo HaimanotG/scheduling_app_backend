@@ -23,7 +23,6 @@ const getBatches = async (req, res, next) => {
         });
 };
 
-
 const _createSemester = async (name, batch) => {
     const semester = await new Semester({
         name,

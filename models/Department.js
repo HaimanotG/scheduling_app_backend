@@ -6,11 +6,6 @@ const departmentSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    // college: {
-    //     type: ObjectId,
-    //     ref: 'College',
-    //     required: true
-    // },
     head: {
         type: ObjectId,
         ref: 'User'
@@ -23,7 +18,6 @@ const departmentSchema = new mongoose.Schema({
         type: ObjectId,
         ref: 'Room'
     }],
-    // workDays: {type: Number},
     batches: [{
         type: ObjectId,
         ref: 'Batch'

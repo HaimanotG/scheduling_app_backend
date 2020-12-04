@@ -13,7 +13,6 @@ const UserSchema = new mongoose.Schema({
     },
     email: {
         type: String,
-        // required: true
     },
     firstName: {
         type: String,
@@ -23,10 +22,7 @@ const UserSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['su', 'admin', 'head']
-    },
-    active: {
-        type: Boolean,
+        enum: ['admin', 'head']
     }
 });
 

@@ -6,16 +6,14 @@ const auth = require('../middlewares/auth');
 const permit = require('../middlewares/permit');
 const error = require('../error');
 const {
-    SU,
-    ADMIN,
-    HEAD
+    ADMIN
 } = require('../enums/roles');
 
 router.get('/checkSessionToken', auth, async (req, res) => {
     res.status(200).json({ success: true });
 });
 
-router.get('/', auth, async (req, res, next) => {
+router.get('/', auth, permit(ADMIN), async (req, res, next) => {
     try {
         const users = await User.find().select('-password');
         res.status(200).json({ users });
@@ -35,7 +33,7 @@ router.get('/:id', auth, async (req, res, next) => {
     }
 });
 
-router.delete('/:id', auth, async (req, res, next) => {
+router.delete('/:id', auth, permit(ADMIN), async (req, res, next) => {
     try {
         const response = await User.deleteOne({
             _id: req.params.id
@@ -70,7 +68,7 @@ router.patch('/:id', auth, async (req, res, next) => {
 });
 
 router.patch('/change-password/:id', auth, async (req, res, next) => {
-    if(req.params.id !== req.user._id) {
+    if (req.params.id !== req.user._id) {
         return next(error(404, "Access Denied"))
     }
     try {
@@ -82,7 +80,7 @@ router.patch('/change-password/:id', auth, async (req, res, next) => {
         const user = await User.findOne({
             _id: id
         });
-        if (!user) return next(error(400,"User not Registered"));
+        if (!user) return next(error(400, "User not Registered"));
         if (!user.comparePassword(oldPassword)) return next(error(400, 'Invalid Password'));
         const response = await User.updateOne({
             _id: id
@@ -102,7 +100,7 @@ router.patch('/change-password/:id', auth, async (req, res, next) => {
     }
 });
 
-router.post('/register', auth, permit([SU, ADMIN]), async (req, res, next) => {
+router.post('/register', auth, permit(ADMIN), async (req, res, next) => {
     try {
         const {
             username,
@@ -114,10 +112,11 @@ router.post('/register', auth, permit([SU, ADMIN]), async (req, res, next) => {
             username
         });
         if (userExisted) return next(error(400, "User already Registered"));
-        
+
         const newUser = await new User({
             username,
-            password
+            password,
+            role: 'head'
         }).save();
         res.status(201).json(_getUserWithoutPassword(newUser));
 
@@ -139,6 +138,7 @@ router.post('/login', async (req, res, next) => {
         });
 
         if (!user) return next(error(400, "User is not registered"));
+        if (!user.active) next(error(400, "User is not alowed to login"));
         if (!user.comparePassword(password)) return next(error(400, 'Invalid Password'));
 
         const token = await jwt.sign({

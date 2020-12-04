@@ -3,8 +3,8 @@ const Teacher = require('../models/Teacher');
 const error = require('../error');
 
 const getTeachers = async (req, res, next) => {
-    const department = await Department.findOne({head: req.user._id});
-    Teacher.find({department})
+    const department = await Department.findOne({ head: req.user._id });
+    Teacher.find({ department })
         .exec()
         .then((teacher, error) => {
             if (error) throw error;
@@ -17,13 +17,13 @@ const getTeachers = async (req, res, next) => {
 
 const _createTeachers = async (teachers, department) => {
     let teachersId = [];
-    for (let teacher of teachers ) {
+    for (let teacher of teachers) {
         teachersId.push(await _createTeacher(teacher.name, department));
     }
     return teachersId;
 };
 
-const _createTeacher = async (name,department) => {
+const _createTeacher = async (name, department) => {
 
     const teacher = await new Teacher({
         name,
@@ -34,24 +34,24 @@ const _createTeacher = async (name,department) => {
 
 const addTeacher = async (req, res, next) => {
     try {
-        const {teachers} = req.body;
+        const { teachers } = req.body;
 
-        const department = await Department.findOne({head: req.user._id});
+        const department = await Department.findOne({ head: req.user._id });
         if (!department) return next(error(400, "Unable to find Department!"));
 
-        const teachersId = await _createTeachers(teachers,department._id);
-        const referenceTeacher = await Department.updateOne({head: req.user._id}, {
+        const teachersId = await _createTeachers(teachers, department._id);
+        const referenceTeacher = await Department.updateOne({ head: req.user._id }, {
             $push: {
                 teachers: teachersId
             }
         });
         if (referenceTeacher.nModified <= 0) {
             for (let teacher of teachersId) {
-                await Teacher.deleteOne({_id: teacher._id});
+                await Teacher.deleteOne({ _id: teacher._id });
             }
             return next(error(400, 'Unable to reference Teacher'));
         }
-        res.status(201).json({teachers})
+        res.status(201).json({ teachers })
     } catch (e) {
         return next(error(e.message))
     }
@@ -59,11 +59,11 @@ const addTeacher = async (req, res, next) => {
 };
 const deleteTeacher = async (req, res, next) => {
     try {
-        const response = await Teacher.deleteOne({_id: req.params.id});
+        const response = await Teacher.deleteOne({ _id: req.params.id });
         if (response.deletedCount <= 0) {
             return next(error(400, "Unable to delete Teacher"));
         }
-        res.status(201).json({success: true})
+        res.status(201).json({ success: true })
     } catch (e) {
         return next(error(e.message))
     }
@@ -71,11 +71,11 @@ const deleteTeacher = async (req, res, next) => {
 
 const updateTeacher = async (req, res, next) => {
     try {
-        const response = await Teacher.updateOne({_id: req.params.id}, {$set: req.body});
+        const response = await Teacher.updateOne({ _id: req.params.id }, { $set: req.body });
         if (response.nModified <= 0) {
             return next(error(400, "Unable to Update Teacher"));
         }
-        res.status(201).json({success: true})
+        res.status(201).json({ success: true })
     } catch (e) {
         return next(error(e.message));
     }

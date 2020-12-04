@@ -1,31 +1,30 @@
 const Department = require('../models/Department');
-const College = require('../models/College');
 const Batch = require('../models/Batch');
 const Semester = require('../models/Semester');
 const Teacher = require('../models/Teacher');
 const Room = require('../models/Room');
 const User = require('../models/User');
 const Course = require('../models/Course');
-// const TeacherToCourse = require('../models/TeacherToCourse');
 
 const error = require('../error');
-
 const getDepartments = async (req, res, next) => {
-    College.findOne({
-            dean: req.user._id
-        })
-        .populate({
-            path: 'departments',
-            select: 'id name',
-            populate: {
-                path: 'head',
-                select: '_id username'
-            }
-        })
+    Department.find()
         .exec()
-        .then(async (college, error) => {
+        .then(async (departments, error) => {
             if (error) throw error;
-            res.status(200).json(college);
+            res.status(200).json({ departments });
+        })
+        .catch(e => {
+            return next(400, error(e.message));
+        });
+};
+
+const getDepartment = async (req, res, next) => {
+    Department.findOne({ _id: req.params.id })
+        .exec()
+        .then(async (department, error) => {
+            if (error) throw error;
+            res.status(200).json({ department });
         })
         .catch(e => {
             return next(400, error(e.message));
@@ -67,23 +66,19 @@ const addDepartment = async (req, res, next) => {
             name,
             head
         } = req.body;
-        const isHeadRegistered = await User.findOne({
+        const user = await User.findOne({
             _id: head,
-            role: 'head'
-        });
-        if (!isHeadRegistered) return next(error(400, 'Head is not registered!'));
+            role: 'head',
+        })
+        if (!user) return next(error(400, 'Head is not registered!'));
         const isHeadOccupied = await Department.findOne({
             head
         });
         if (isHeadOccupied) return next(error(400, 'Head is already Occupied'));
         let batches = [];
-        // const college = await College.findOne({
-        //     dean: req.user._id
-        // });
 
         const department = await new Department({
             name,
-            // college: college._id,
             head
         }).save();
 
@@ -98,23 +93,7 @@ const addDepartment = async (req, res, next) => {
                 batches: batches
             }
         });
-        // await College.updateOne({
-        //     dean: req.user._id
-        // }, {
-        //     $push: {
-        //         departments: department._id,
-        //     }
-        // });
-        Department.findOne({
-                _id: department._id
-            })
-            .exec()
-            .then((department) => {
-                res.status(201).json({department});
-            })
-            .catch(e => {
-                return next(error(e.message))
-            });
+        res.status(201).json({ success: true })
     } catch (e) {
         return next(error(e.message))
     }
@@ -171,7 +150,7 @@ const deleteDepartment = async (req, res, next) => {
         if (response.deletedCount <= 0) {
             return next(error("Unable to delete Department"));
         }
-        res.status(204).json({
+        res.status(200).json({
             success: true
         })
     } catch (e) {
@@ -181,6 +160,7 @@ const deleteDepartment = async (req, res, next) => {
 
 module.exports = {
     getDepartments,
+    getDepartment,
     addDepartment,
     deleteDepartment,
     updateDepartment

@@ -56,7 +56,7 @@ const prompt = () => {
                         rl.close();
                     }
                     try {
-                        await new User({ username, email, password, role: 'su' }).save();
+                        await new User({ username, email, password, role: 'admin' }).save();
                         console.log("Super User Created!");
                     } catch (e) {
                         console.log(e);

@@ -9,10 +9,15 @@ const Course = require('../models/Course');
 const error = require('../error');
 const getDepartments = async (req, res, next) => {
     Department.find()
+        .populate({
+            path: 'head',
+            select: 'username'
+        })
+        .select("-batches -rooms -teachers")
         .exec()
         .then(async (departments, error) => {
             if (error) throw error;
-            res.status(200).json({ departments });
+            res.status(200).json(departments);
         })
         .catch(e => {
             return next(400, error(e.message));
@@ -24,7 +29,7 @@ const getDepartment = async (req, res, next) => {
         .exec()
         .then(async (department, error) => {
             if (error) throw error;
-            res.status(200).json({ department });
+            res.status(200).json(department);
         })
         .catch(e => {
             return next(400, error(e.message));
@@ -68,7 +73,6 @@ const addDepartment = async (req, res, next) => {
         } = req.body;
         const user = await User.findOne({
             _id: head,
-            role: 'head',
         })
         if (!user) return next(error(400, 'Head is not registered!'));
         const isHeadOccupied = await Department.findOne({

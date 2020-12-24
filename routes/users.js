@@ -15,8 +15,13 @@ router.get('/checkSessionToken', auth, async (req, res) => {
 
 router.get('/', auth, permit(ADMIN), async (req, res, next) => {
     try {
-        const users = await User.find().select('-password');
-        res.status(200).json({ users });
+        const query = {}
+        
+        if (req.query.role) {
+            query.role = req.query.role;
+        }
+        const users = await User.find(query).select('-password');
+        res.status(200).json(users);
     } catch (e) {
         return next(error(400, e.message));
     }
@@ -27,7 +32,7 @@ router.get('/:id', auth, async (req, res, next) => {
         const user = await User.findOne({
             _id: req.params.id
         }).select('-password');
-        res.status(200).json({ user });
+        res.status(200).json(user);
     } catch (e) {
         return next(error(400, e.message));
     }
@@ -49,34 +54,13 @@ router.delete('/:id', auth, permit(ADMIN), async (req, res, next) => {
     }
 });
 
-router.patch('/:id', auth, async (req, res, next) => {
+router.patch('/change-password', auth, async (req, res, next) => {
     try {
-        const response = await User.updateOne({
-            _id: req.params.id
-        }, {
-            $set: req.body
-        });
-        if (response.nModified <= 0) {
-            return next(error(400, "Unable to Update User!"));
-        }
-        res.status(200).json({
-            success: true
-        });
-    } catch (e) {
-        return next(error(400, e.message));
-    }
-});
-
-router.patch('/change-password/:id', auth, async (req, res, next) => {
-    if (req.params.id !== req.user._id) {
-        return next(error(404, "Access Denied"))
-    }
-    try {
+        const id = req.user._id;
         const {
             oldPassword,
             newPassword
         } = req.body;
-        const id = req.user._id;
         const user = await User.findOne({
             _id: id
         });
@@ -97,6 +81,24 @@ router.patch('/change-password/:id', auth, async (req, res, next) => {
         });
     } catch (e) {
         return next(error(e.message));
+    }
+});
+
+router.patch('/:id', auth, async (req, res, next) => {
+    try {
+        const response = await User.updateOne({
+            _id: req.params.id
+        }, {
+            $set: req.body
+        });
+        if (response.nModified <= 0) {
+            return next(error(400, "Unable to Update User!"));
+        }
+        res.status(200).json({
+            success: true
+        });
+    } catch (e) {
+        return next(error(400, e.message));
     }
 });
 
@@ -138,13 +140,13 @@ router.post('/login', async (req, res, next) => {
         });
 
         if (!user) return next(error(400, "User is not registered"));
-        if (!user.active) next(error(400, "User is not alowed to login"));
         if (!user.comparePassword(password)) return next(error(400, 'Invalid Password'));
 
         const token = await jwt.sign({
             _id: user._id,
             role: user.role
         }, process.env.SECRET);
+        
         if (!token) return next(error('Error in generating token'));
 
         res.header('x-auth-token', token);
@@ -158,12 +160,14 @@ const _getUserWithoutPassword = ({
     _id,
     username,
     email,
-    role
+    role,
+    fullName,
 }) => ({
     _id,
     username,
     email,
-    role
+    role,
+    fullName
 });
 
 module.exports = router;

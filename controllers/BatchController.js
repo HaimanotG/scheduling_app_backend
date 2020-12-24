@@ -4,24 +4,38 @@ const Semester = require('../models/Semester');
 const error = require('../error');
 
 const getBatches = async (req, res, next) => {
-    Department.findOne({
-            head: req.user._id
-        })
-        .populate({
-            path: 'batches',
-            populate: {
-                path: 'semesters'
-            }
-        })
+    const department = await Department.findOne({ head: req.user._id });
+    Batch.find({ department })
+    .populate({
+        path: 'labRoom',
+        select: '_id name'
+    })
+    .populate({
+        path: 'classRoom',
+        select: '_id name'
+    })
         .exec()
-        .then(async (department, error) => {
+        .then((batches, error) => {
             if (error) throw error;
-            res.status(200).json(department);
+            res.status(200).json(batches);
         })
         .catch(e => {
-            return next(400, error(e.message));
+            return next(error(e.message))
         });
 };
+
+const getBatch = async (req, res, next) => {
+    const department = await Department.findOne({ head: req.user._id });
+    Batch.findOne({ department, _id: req.params.id })
+        .exec()
+        .then((batch, error) => {
+            if (error) throw error;
+            res.status(200).json(batch);
+        })
+        .catch(e => {
+            return next(error(e.message))
+        });
+}
 
 const _createSemester = async (name, batch) => {
     const semester = await new Semester({
@@ -35,6 +49,7 @@ const _createSemesters = async batch => {
     let semesters = [];
     semesters.push(await _createSemester("First", batch));
     semesters.push(await _createSemester("Second", batch));
+    semesters.push(await _createSemester("Third", batch));
     return semesters;
 };
 
@@ -43,7 +58,7 @@ const addBatch = async (req, res, next) => {
         const {
             name,
             classRoom,
-            labClassRoom
+            labRoom
         } = req.body;
         if (!name) return next(error(400, "Incomplete Form"));
         const department = await Department.findOne({
@@ -54,7 +69,7 @@ const addBatch = async (req, res, next) => {
         const batch = await new Batch({
             name,
             department: department._id,
-            labClassRoom,
+            labRoom,
             classRoom
         }).save();
 
@@ -153,18 +168,18 @@ const setClassRoomToBatch = async (req, res, next) => {
     }
 };
 
-const setLabClassRoomToBatch = async (req, res, next) => {
+const setLabRoomToBatch = async (req, res, next) => {
     try {
         const response = await Batch.updateOne({
             _id: req.params.id
         }, {
             $set: {
-                labClassRoom: req.body
+                labRoom: req.body
             }
         });
 
         if (response.nModified <= 0) {
-            return next(error(400, "Unable to set Lab Class Room to Batch"));
+            return next(error(400, "Unable to set Lab Room to Batch"));
         }
         res.status(200).json({
             success: true
@@ -198,10 +213,11 @@ const setStudentGroupsToBatch = async (req, res, next) => {
 
 module.exports = {
     getBatches,
+    getBatch,
     addBatch,
     updateBatch,
     deleteBatch,
-    setLabClassRoomToBatch,
+    setLabRoomToBatch,
     setClassRoomToBatch,
     setStudentGroupsToBatch
 };

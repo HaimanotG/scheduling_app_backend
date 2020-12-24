@@ -15,7 +15,7 @@ const batchSchema = new mongoose.Schema({
 		type: ObjectId,
 		ref: 'Room',
 	},
-	labClassRoom: {
+	labRoom: {
 		type: ObjectId,
 		ref: 'Room',
 	},

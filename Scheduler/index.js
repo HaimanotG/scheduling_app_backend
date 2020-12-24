@@ -21,7 +21,8 @@ const _getRowData = () =>
                 const DAYS_IN_A_WEEK = ['Monday', 'Tuesday', 'Wedensday', 'Thursday', 'Friday'];
                 const HOURS_IN_A_DAY = ['2:30', '3:30', '4:30', '5:30', '7:30', '8:30', '9:30', '10:30'];
                 
-                let sc = [];
+                let _slots = [];
+                let sc;
                 _departments.forEach(department => {
                     const nr = department.rooms.length;
                     _slots = new Array(DAYS_IN_A_WEEK.length * HOURS_IN_A_DAY.length * nr);

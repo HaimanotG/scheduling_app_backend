@@ -1,14 +1,13 @@
 const Department = require('../models/Department');
 const Course = require('../models/Course');
-const Semester = require('../models/Semester');
 const TeacherRequest = require('../models/TeacherRequest');
 
 const error = require('../error');
 
 const getCourses = async (req, res, next) => {
     Department.findOne({
-            head: req.user._id
-        })
+        head: req.user._id
+    })
         .populate({
             path: 'batches',
             select: '_id name',
@@ -38,35 +37,13 @@ const getCourses = async (req, res, next) => {
         });
 };
 
-const _createCourses = async courses => {
-    let courseIds = [];
-    for (let course of courses) {
-        courseIds.push(await _createCourse(course));
-    }
-    return courseIds;
-};
-
-const _createCourse = async course => {
-    const {semester} = course;
-    const newCourse = await new Course({
-        ...course
-    }).save();
-    const referenceCourse = await Semester.updateOne({
-        _id: semester
-    }, {
-        $push: {
-            courses: newCourse._id
-        }
-    });
-
-    return newCourse._id;
-};
-
-const addCourse = async (req, res, next) =>  {
+const addCourse = async (req, res, next) => {
     try {
-        const {courses} = req.body;
-        const courseIds = await _createCourses(courses);
-        res.status(200).json(courses);
+        const { name, semester, code, totalCreditHours, labCreditHours } = req.body;
+        await new Course({
+            name, semester, code, totalCreditHours, labCreditHours
+        }).save();
+        res.status(200).json({ success: true });
     } catch (e) {
         return next(error(e.message))
     }

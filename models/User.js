@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-// const ObjectId = mongoose.Schema.Types.ObjectId;
 
 const UserSchema = new mongoose.Schema({
     username: {
@@ -14,10 +13,7 @@ const UserSchema = new mongoose.Schema({
     email: {
         type: String,
     },
-    firstName: {
-        type: String,
-    },
-    lastName: {
+    fullName: {
         type: String,
     },
     role: {

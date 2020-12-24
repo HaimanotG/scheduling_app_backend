@@ -20,7 +20,7 @@ const app = express();
 
 require("dotenv").config();
 const corsOptions = {
-    exposedHeaders: "Authorization"
+    exposedHeaders: "x-auth-token"
 };
 
 app.use(require("cors")(corsOptions));

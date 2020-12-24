@@ -6,6 +6,19 @@ const getTeachers = async (req, res, next) => {
     const department = await Department.findOne({ head: req.user._id });
     Teacher.find({ department })
         .exec()
+        .then((teachers, error) => {
+            if (error) throw error;
+            res.status(200).json(teachers);
+        })
+        .catch(e => {
+            return next(error(e.message))
+        });
+};
+
+const getTeacher = async (req, res, next) => {
+    const department = await Department.findOne({ head: req.user._id });
+    Teacher.findOne({ department, _id: req.params.id })
+        .exec()
         .then((teacher, error) => {
             if (error) throw error;
             res.status(200).json(teacher);
@@ -13,7 +26,7 @@ const getTeachers = async (req, res, next) => {
         .catch(e => {
             return next(error(e.message))
         });
-};
+}
 
 const _createTeachers = async (teachers, department) => {
     let teachersId = [];
@@ -24,7 +37,6 @@ const _createTeachers = async (teachers, department) => {
 };
 
 const _createTeacher = async (name, department) => {
-
     const teacher = await new Teacher({
         name,
         department
@@ -34,24 +46,24 @@ const _createTeacher = async (name, department) => {
 
 const addTeacher = async (req, res, next) => {
     try {
-        const { teachers } = req.body;
+        const { name } = req.body;
 
         const department = await Department.findOne({ head: req.user._id });
         if (!department) return next(error(400, "Unable to find Department!"));
-
-        const teachersId = await _createTeachers(teachers, department._id);
-        const referenceTeacher = await Department.updateOne({ head: req.user._id }, {
-            $push: {
-                teachers: teachersId
-            }
-        });
-        if (referenceTeacher.nModified <= 0) {
-            for (let teacher of teachersId) {
-                await Teacher.deleteOne({ _id: teacher._id });
-            }
-            return next(error(400, 'Unable to reference Teacher'));
-        }
-        res.status(201).json({ teachers })
+        await _createTeacher(name, department._id);
+        // const teachersId = await _createTeachers(teachers, department._id);
+        // const referenceTeacher = await Department.updateOne({ head: req.user._id }, {
+        //     $push: {
+        //         teachers: teachersId
+        //     }
+        // });
+        // if (referenceTeacher.nModified <= 0) {
+        //     for (let teacher of teachersId) {
+        //         await Teacher.deleteOne({ _id: teacher._id });
+        //     }
+        //     return next(error(400, 'Unable to reference Teacher'));
+        // }
+        res.status(201).json({ success: true })
     } catch (e) {
         return next(error(e.message))
     }
@@ -83,6 +95,7 @@ const updateTeacher = async (req, res, next) => {
 
 module.exports = {
     getTeachers,
+    getTeacher,
     addTeacher,
     updateTeacher,
     deleteTeacher

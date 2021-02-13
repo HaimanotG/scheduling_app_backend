@@ -11,7 +11,7 @@ This will run both the server and the client with nodemon
 
 
 ### Tips
-if you are testing your apis using postman you can import this file into post man *scheduling_app.postman_collection.json*.
+if you are testing your apis using postman you can import this file into postman *scheduling_app.postman_collection.json*.
 
 Mantras:
 
@@ -29,7 +29,7 @@ Mantras:
 * [ ] Allow Multiple FormSets to be added
     * [x] Teacher
     * [x] Room
-    * [ ] Course
-        * [ ] Throw error if semester is not available
+    * [x] Course
+        * [x] Throw error if semester is not available
 
-* [ ] is Adding the workdays constraint to the department feasible?
+* [x] is Adding the workdays constraint to the department feasible?

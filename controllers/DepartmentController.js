@@ -79,13 +79,17 @@ const addDepartment = async (req, res, next) => {
             head
         });
         if (isHeadOccupied) return next(error(400, 'Head is already Occupied'));
+        const isDepartmentRegisterd = await Department.findOne({ name });
+        if (isDepartmentRegisterd) {
+            return next(error(400, 'Department already registerd!'))
+        }
         let batches = [];
 
         const department = await new Department({
             name,
             head
         }).save();
-
+        const tbaTeacher = await new Teacher({ name: 'TBA', department: department._id }).save();
         batches.push(await _createBatch("First", department._id));
         batches.push(await _createBatch("Second", department._id));
         batches.push(await _createBatch("Third", department._id));

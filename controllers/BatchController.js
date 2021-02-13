@@ -6,14 +6,14 @@ const error = require('../error');
 const getBatches = async (req, res, next) => {
     const department = await Department.findOne({ head: req.user._id });
     Batch.find({ department })
-    .populate({
-        path: 'labRoom',
-        select: '_id name'
-    })
-    .populate({
-        path: 'classRoom',
-        select: '_id name'
-    })
+        .populate({
+            path: 'labRoom',
+            select: '_id name'
+        })
+        .populate({
+            path: 'classRoom',
+            select: '_id name'
+        })
         .exec()
         .then((batches, error) => {
             if (error) throw error;
@@ -49,7 +49,6 @@ const _createSemesters = async batch => {
     let semesters = [];
     semesters.push(await _createSemester("First", batch));
     semesters.push(await _createSemester("Second", batch));
-    semesters.push(await _createSemester("Third", batch));
     return semesters;
 };
 
@@ -65,6 +64,11 @@ const addBatch = async (req, res, next) => {
             head: req.user._id
         });
         if (!department) return next(error(400, "Unable to find Department!"));
+
+        const isBatchRegisterd = await Batch.findOne({ name, department: department._id });
+        if (isBatchRegisterd) {
+            return next(error(400, 'Batch already registerd!'))
+        }
 
         const batch = await new Batch({
             name,
@@ -210,6 +214,14 @@ const setStudentGroupsToBatch = async (req, res, next) => {
     }
 };
 
+const getSemesters = async (req, res, next) => {
+    try {
+        const semesters = await Semester.find({ batch: req.params.batchId });
+        res.status(200).json(semesters);
+    } catch (e) {
+        return next(error(e.message));
+    }
+}
 
 module.exports = {
     getBatches,
@@ -219,5 +231,6 @@ module.exports = {
     deleteBatch,
     setLabRoomToBatch,
     setClassRoomToBatch,
-    setStudentGroupsToBatch
+    setStudentGroupsToBatch,
+    getSemesters
 };

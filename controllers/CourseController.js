@@ -1,48 +1,48 @@
-const Department = require('../models/Department');
+const Semester = require('../models/Semester');
 const Course = require('../models/Course');
 const TeacherRequest = require('../models/TeacherRequest');
 
 const error = require('../error');
+const getCourse = async (req, res, next) => {
+    try {
+        const _id = req.params.id;
+        const course = await Course.findOne({ _id });
+        res.status(200).json(course);
+    } catch (e) {
+        return next(error(e.message))
+    }
+}
 
 const getCourses = async (req, res, next) => {
-    Department.findOne({
-        head: req.user._id
-    })
-        .populate({
-            path: 'batches',
-            select: '_id name',
-            populate: {
-                path: 'semesters',
-                select: '_id name',
-                populate: {
-                    path: 'courses',
-                }
-            }
-        }).exec()
-        .then((department, error) => {
-            if (error) throw error;
-            if (!department) throw Error("Unable to find Details");
-            let courses = [];
-            department.batches.forEach(batch => {
-                batch.semesters.forEach(semester => {
-                    semester.courses.forEach(course => {
-                        courses.push(course);
-                    });
-                });
-            });
-            res.status(200).json(courses);
-        })
-        .catch(e => {
-            return next(error(e.message))
-        });
+    try {
+        const semester = req.params.semester;
+        const courses = await Course.find({ semester }).populate({ path: 'semester', select: 'name' }).exec()
+        res.status(200).json(courses);
+    } catch (e) {
+        return next(error(e.message))
+    }
 };
 
 const addCourse = async (req, res, next) => {
     try {
-        const { name, semester, code, totalCreditHours, labCreditHours } = req.body;
-        await new Course({
-            name, semester, code, totalCreditHours, labCreditHours
+        const { name, semester, code, teacher, totalCreditHours, labCreditHours } = req.body;
+        const isCourseSaved = await Course.findOne({ semester, name });
+        if (isCourseSaved) {
+            return next(error(400, 'Course already registered!'))
+        }
+        const course = await new Course({
+            name, semester, code, teacher, totalCreditHours, labCreditHours
         }).save();
+        const referenceCourse = await Semester.updateOne({ _id: semester }, {
+            $push: {
+                courses: course._id
+            }
+        });
+        if (referenceCourse.nModified <= 0) {
+            await Teacher.deleteOne({ _id: course._id });
+            return next(error(400, 'Unable to reference Course'));
+        }
+
         res.status(200).json({ success: true });
     } catch (e) {
         return next(error(e.message))
@@ -55,11 +55,11 @@ const deleteCourse = async (req, res, next) => {
             _id: req.params.id
         });
         if (response.deletedCount <= 0) {
-            return next(error("Unable to delete Course"));
+            return next(error(400, "Unable to delete Course"));
         }
-        res.status(204).json({
+        res.status(201).json({
             success: true
-        });
+        })
     } catch (e) {
         return next(error(e.message))
     }
@@ -75,7 +75,7 @@ const updateCourse = async (req, res, next) => {
         if (response.nModified <= 0) {
             return next(error(400, "Unable to Update Course"));
         }
-        res.status(200).json({
+        res.status(201).json({
             success: true
         })
     } catch (e) {
@@ -172,6 +172,7 @@ const changeTeacherForCourse = async (req, res, next) => {
 
 module.exports = {
     getCourses,
+    getCourse,
     addCourse,
     updateCourse,
     deleteCourse,

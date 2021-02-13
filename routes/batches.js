@@ -7,7 +7,8 @@ const {
     deleteBatch,
     setLabRoomToBatch,
     setClassRoomToBatch,
-    setStudentGroupsToBatch
+    setStudentGroupsToBatch,
+    getSemesters
   } = require("../controllers/BatchController");
   
 router.get("/", getBatches);
@@ -15,6 +16,8 @@ router.get("/:id", getBatch);
 router.post("/", addBatch);
 router.delete("/:id", deleteBatch);
 router.patch("/:id", updateBatch);
+
+router.get("/:batchId/semesters", getSemesters);
 
 router.patch("/:id/set-class-room", setClassRoomToBatch);
 router.patch("/:id/set-lab-room", setLabRoomToBatch);

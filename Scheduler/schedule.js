@@ -1,64 +1,14 @@
-const _getSlots = () => {
-    return ['Monday', 'Thusday', 'Wedensday', 'Thursday', 'Friday'].map(day => ({
-        day,
-        hours: ['8:30AM', '9:30AM', '10:30AM', '11:30AM', '12:30PM',
-            '1:30PM', '2:30PM', '3:30PM', '4:30PM']
-    }))
-}
-
-const rooms = [
-    {
-        name: "VII7",
-    },
-    {
-        name: "SE Lab CCI Bld",
-        isLab: true,
-    }
-];
-
-const courses = [
-    {
-        name: "Information Security",
-        teacher: "Adugna A.",
-        totalCreditHours: 3,
-        labCreditHours: 2
-    },
-    {
-        name: "Human Computer Interaction",
-        teacher: "Addis S.",
-        totalCreditHours: 3,
-        labCreditHours: 2
-    },
-    {
-        name: "Software Requirements Engineering",
-        teacher: "Feyisa",
-        totalCreditHours: 3
-    },
-    {
-        name: "Probability and Statistics",
-        teacher: "TBA",
-        totalCreditHours: 3
-    },
-    {
-        name: "Real-time and Embedded Systetms",
-        teacher: "Gemechis T",
-        totalCreditHours: 3,
-        labCreditHours: 2
-    },
-    {
-        name: "Software Design and Architecture",
-        teacher: "De. Gavandra",
-        totalCreditHours: 3,
-    }
-];
+const { timeSlots, getDepartmentByHead } = require('./scheduleData');
+let rooms = [];
+const _slots = timeSlots();
 
 let _timeTeacherBooked = [
     {
-        teacher: "Bededa",
+        teacher: "Adugna A",
         booked: [
             {
-                day: "Monday",
-                hours: ['10:30AM']
+                day: "Thusday",
+                hours: ['8:30AM']
             }
         ]
     }
@@ -66,7 +16,7 @@ let _timeTeacherBooked = [
 
 let _timesRoomBooked = [
     {
-        room: "VII7",
+        room: "VII7-7",
         booked: [
             {
                 day: "Monday",
@@ -85,11 +35,12 @@ let _timesRoomBooked = [
     }
 ];
 
+
 const markRoomBooked = (room, dayofTheWeek, hour) => {
     _timesRoomBooked = _timesRoomBooked.map(r => {
         if (r.room === room) {
             const { room, booked } = r;
-            const newObject = {
+            return {
                 room, booked: booked.map(b => {
                     const { day, hours } = b;
                     if (b.day === dayofTheWeek) {
@@ -98,10 +49,10 @@ const markRoomBooked = (room, dayofTheWeek, hour) => {
                     return b;
                 })
             };
-            return newObject;
         }
         return r;
     });
+    console.table(_timesRoomBooked[0].booked[0].hours);
 }
 
 const markTeacherBooked = (teacher, dayofTheWeek, hour) => {
@@ -156,82 +107,60 @@ const _isTeacherBooked = (teacher, day, hour) => {
     return false;
 }
 
-const simplifyTime = time => {
-    if (time.length < 0) return [];
-    let simplifedTime = "";
-    // if (time.length > 1) {
-    //     for (let i = 0; i < time.length - 1; i++) {
-    //         const first = time[i].split(" ");
-    //         const second = time[i + 1].split(" ");
-    //         if (first[0] === second[0]) {
-    //             simplifedTime += first[0] + " " + first[1] + "-" + second[1] + " ";
-    //             time[i + 1] = simplifedTime;
-    //         }
-    //     }
-    // }
-    return time;
+const _makeTimeForDisplay = (time = []) => {
+    if (time.length <= 0) return "";
+    const t = time.reduce((acc, red) => {
+        const first = acc.split(" ");
+        const second = red.split(" ");
+        if (first[0] === second[0]) {
+            return `${first[0]} ${first[1]}-${second[1]}`
+        }
+        return acc + " " + red;
+    })
+
+    let long = t.split("-");
+    if (long.length > 1) {
+        return `${long[0]}-${long[long.length - 1]}`
+    }
+
+    return t;
 }
 
 const getSchedule = (course) => {
-    const _slots = _getSlots()
-    const labRoom = rooms[1];
-    const lessonRoom = rooms[0];
-    // eslint-disable-next-line no-unused-vars
-    const allocateTimeforaRoom = (room, crdthrs) => {
+    const allocateTime = (room, crdthrs) => {
         const time = [];
-        for (const slot of _slots) {
-            for (const hour of slot.hours) {
-                if (!_isRoomBooked(room, slot.day, hour)
-                    && !_isTeacherBooked(course.teacher, slot.day, hour)) {
-                    time.push(slot.day + " " + hour);
-                    markRoomBooked(room, slot.day, hour);
-                    markTeacherBooked(course.teacher, slot.day, hour);
-                    if (time.length >= crdthrs) return simplifyTime(time);
+        for (let i = 0; i < crdthrs; i++) {
+            for (const slot of _slots) {
+                for (const hour of slot.hours) {
+                    const teacher = course.teacher ? course.teacher.name : 'TBA';
+                    // if (!_isRoomBooked(room, slot.day, hour)
+                    //     && !_isTeacherBooked(teacher, slot.day, hour)) {
+                    //     time.push(slot.day + " " + hour);
+                    //     markRoomBooked(room, slot.day, hour);
+                    //     markTeacherBooked(teacher, slot.day, hour);
+                    //     if (time.length >= crdthrs) return _makeTimeForDisplay(time);
+                    // }
+
+                    if(!_isRoomBooked(room, slot.day, hour)){
+                        markRoomBooked(room, slot.day, hour);
+                        time.push(slot.day + " " + hour);
+                        if (time.length >= crdthrs) return _makeTimeForDisplay(time);
+                    }
                 }
             }
         }
-        return simplifyTime(time);
+        return _makeTimeForDisplay(time);
     }
-    const _bookTime = (totalCreditHours, labCreditHours = 0) => {
-        let time = [];
+    
+    const _getTime = (totalCreditHours, labCreditHours = 0) => {
         const lessonCreditHours = totalCreditHours - labCreditHours;
+        const labRoom = rooms[1].name;
+        const lessonRoom = rooms[0].name;
 
-        for (let i = 0; i < lessonCreditHours; i++) {
-            // time += allocateTimeforaRoom("VII7", lessonCreditHours);
-            let lessonTime = [];
-            for (const slot of _slots) {
-                for (const hour of slot.hours) {
-                    if (!_isRoomBooked(lessonRoom, slot.day, hour)
-                        && !_isTeacherBooked(course.teacher, slot.day, hour)) {
-                        lessonTime.push(slot.day + " " + hour);
-                        markRoomBooked(lessonRoom, slot.day, hour);
-                        markTeacherBooked(course.teacher, slot.day, hour);
-                        if (time.length >= lessonCreditHours) break;
-                    }
-                }
-            }
-            console.log(lessonTime);
-            time.push(lessonTime);
-        }
-
-        for (let i = 0; i < labCreditHours; i++) {
-            // time += allocateTimeforaRoom("SE Lab CCI Bld", labCreditHours);
-            let lTime = [];
-            for (const slot of _slots) {
-                for (const hour of slot.hours) {
-                    if (!_isRoomBooked(labRoom, slot.day, hour)
-                        && !_isTeacherBooked(course.teacher, slot.day, hour)) {
-                        lTime.push(slot.day + " " + hour);
-                        markRoomBooked(labRoom, slot.day, hour);
-                        markTeacherBooked(course.teacher, slot.day, hour);
-                        if (time.length >= lessonCreditHours) break;
-                    }
-                }
-            }
-
-            time.push(lTime);
-        }
-        return simplifyTime(time);
+        return {
+            lessonTime: allocateTime(lessonRoom, lessonCreditHours),
+            labTime: allocateTime(labRoom, labCreditHours)
+        };
     }
 
     let room = rooms[0].name;
@@ -240,29 +169,44 @@ const getSchedule = (course) => {
         room = room + "/" + rooms.filter(r => r.isLab)[0].name
     }
 
-    const time = _bookTime(totalCreditHours, labCreditHours);
+    const { lessonTime, labTime } = _getTime(totalCreditHours, labCreditHours);
 
     return {
-        time,
+        lessonTime,
+        labTime,
         room,
     }
 }
 
-const start = () => {
-    const schedules = [];
-    console.time()
-    for (const course of courses) {
-        const { time, room } = getSchedule(course);
-        schedules.push({
-            course: course.name,
-            crdthrs: course.totalCreditHours,
-            time,
-            room,
-            teacher: course.teacher,
-        })
+const schedule = async id => {
+    try {
+        console.time()
+        // const data = await getDepartmentByHead("5fefba02ae17b0194cfb8459");
+        // rooms = data.rooms;
+        const schedules = [];
+        // for (const batch of data.batches) {
+        //     for(const semester of batch.semesters){
+        //         for(const course of semester.courses){
+        //             const { lessonTime, labTime, room } = getSchedule(course);
+        //             schedules.push({
+        //                 course: course.name,
+        //                 crdthrs: course.totalCreditHours,
+        //                 // lessonTime,
+        //                 // labTime,
+        //                 time: lessonTime + "\n" + labTime,
+        //                 room,
+        //                 teacher: course.teacher ? course.teacher.name : 'TBA',
+        //             })
+        //         }
+        //     }
+        // }
+        // console.table(schedules)
+        console.timeEnd();
+        return schedules;
+    } catch(e){
+        console.log(e);
     }
-    console.table(schedules)
-    console.timeEnd();
 }
+// schedule();
 
-start();
+module.exports = schedule;

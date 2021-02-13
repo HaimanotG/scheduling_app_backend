@@ -27,10 +27,10 @@ const courseSchema = new mongoose.Schema({
 		type: ObjectId,
 		ref: 'Teacher'
 	},
-	isTeacherBorrowed: {
-		type: Boolean,
-		default: false
-	},
+	// isTeacherBorrowed: {
+	// 	type: Boolean,
+	// 	default: false
+	// },
 });
 
 module.exports = mongoose.model('Course', courseSchema);

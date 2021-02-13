@@ -3,38 +3,24 @@ const Teacher = require('../models/Teacher');
 const error = require('../error');
 
 const getTeachers = async (req, res, next) => {
-    const department = await Department.findOne({ head: req.user._id });
-    Teacher.find({ department })
-        .exec()
-        .then((teachers, error) => {
-            if (error) throw error;
-            res.status(200).json(teachers);
-        })
-        .catch(e => {
-            return next(error(e.message))
-        });
+    try {
+        const department = await Department.findOne({ head: req.user._id });
+        const teachers = await Teacher.find({ department });
+        res.status(200).json(teachers);
+    } catch (e) {
+        return next(error(e.message))
+    }
 };
 
 const getTeacher = async (req, res, next) => {
-    const department = await Department.findOne({ head: req.user._id });
-    Teacher.findOne({ department, _id: req.params.id })
-        .exec()
-        .then((teacher, error) => {
-            if (error) throw error;
-            res.status(200).json(teacher);
-        })
-        .catch(e => {
-            return next(error(e.message))
-        });
-}
-
-const _createTeachers = async (teachers, department) => {
-    let teachersId = [];
-    for (let teacher of teachers) {
-        teachersId.push(await _createTeacher(teacher.name, department));
+    try {
+        const department = await Department.findOne({ head: req.user._id });
+        const teacher = await Teacher.findOne({ department, _id: req.params.id })
+        res.status(200).json(teacher);
+    } catch (e) {
+        return next(error(e.message))
     }
-    return teachersId;
-};
+}
 
 const _createTeacher = async (name, department) => {
     const teacher = await new Teacher({
@@ -50,19 +36,20 @@ const addTeacher = async (req, res, next) => {
 
         const department = await Department.findOne({ head: req.user._id });
         if (!department) return next(error(400, "Unable to find Department!"));
-        await _createTeacher(name, department._id);
-        // const teachersId = await _createTeachers(teachers, department._id);
-        // const referenceTeacher = await Department.updateOne({ head: req.user._id }, {
-        //     $push: {
-        //         teachers: teachersId
-        //     }
-        // });
-        // if (referenceTeacher.nModified <= 0) {
-        //     for (let teacher of teachersId) {
-        //         await Teacher.deleteOne({ _id: teacher._id });
-        //     }
-        //     return next(error(400, 'Unable to reference Teacher'));
-        // }
+        const findTeacher = await Teacher.findOne({ name, department: department._id });
+        if (findTeacher) {
+            return next(error(400, 'Teacher already registerd!'))
+        }
+        const teacherId = await _createTeacher(name, department._id);
+        const referenceTeacher = await Department.updateOne({ head: req.user._id }, {
+            $push: {
+                teachers: teacherId
+            }
+        });
+        if (referenceTeacher.nModified <= 0) {
+            await Teacher.deleteOne({ _id: teacherId });
+            return next(error(400, 'Unable to reference Teacher'));
+        }
         res.status(201).json({ success: true })
     } catch (e) {
         return next(error(e.message))

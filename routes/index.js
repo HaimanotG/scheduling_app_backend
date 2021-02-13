@@ -4,6 +4,9 @@ const batches = require('./batches');
 const courses = require('./courses');
 const rooms = require('./rooms');
 const requests = require('./requests');
+const schedule = require('../Scheduler');
+const currentSemester = require('./currentSemester');
+const generatedSchedule = require('./generatedSchedule');
 
 module.exports = {
     departments,
@@ -12,4 +15,7 @@ module.exports = {
     courses,
     rooms,
     requests,
+    schedule,
+    currentSemester,
+    generatedSchedule
 };

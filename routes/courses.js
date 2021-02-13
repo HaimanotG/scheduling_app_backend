@@ -6,10 +6,12 @@ const {
   deleteCourse,
   assignTeacherToCourses,
   removeTeacherFromCourse,
-  changeTeacherForCourse
+  changeTeacherForCourse,
+  getCourse
 } = require("../controllers/CourseController");
 
-router.get("/", getCourses);
+router.get("/:id", getCourse);
+// router.get("/:semester", getCourses);
 router.post("/", addCourse);
 router.delete("/:id", deleteCourse);
 router.patch("/:id", updateCourse);

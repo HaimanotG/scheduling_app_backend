@@ -27,15 +27,27 @@ const getRoom = async (req, res, next) => {
 const addRoom = async (req, res, next) => {
     try {
         const { name, isLab } = req.body;
-
         const department = await Department.findOne({ head: req.user._id });
         if (!department) return next(error(400, "Unable to find Department!"));
-
-        await new Room({
+        const isRoomRegisterd = await Room.findOne({ name, department: department._id  });
+        if (isRoomRegisterd) {
+            return next(error(400, 'Room already registerd!'))
+        }
+        const room = await new Room({
             name,
             isLab,
             department: department._id
         }).save();
+
+        const referenceRoom = await Department.updateOne({ head: req.user._id }, {
+            $push: {
+                rooms: room._id
+            }
+        });
+        if (referenceRoom.nModified <= 0) {
+            await Teacher.deleteOne({ _id: room._id });
+            return next(error(400, 'Unable to reference Room'));
+        }      
         
         res.status(201).json({ success: true });
     } catch (e) {
@@ -67,7 +79,7 @@ const deleteRoom = async (req, res, next) => {
             _id: req.params.id
         });
         if (response.deletedCount <= 0) {
-            return next(error(400, "Unable to delete "));
+            return next(error(400, "Unable to delete Room"));
         }
         res.status(201).json({
             success: true

@@ -1,4 +1,4 @@
-const scheduleGenerator = require("./scheduleGeneratorForBatchProblemTest");
+const scheduleGenerator = require("./scheduleGenerator");
 const error = require('../error');
 
 module.exports = async (req, res, next) => {
@@ -9,3 +9,4 @@ module.exports = async (req, res, next) => {
         return next(error(e.message))
     }
 }
+

@@ -123,23 +123,23 @@ const _isTeacherBooked = (teacher, day, hour) => {
 
 const _makeTimeForDisplay = (time = []) => {
     if (time.length <= 0) return "";
-    // const t = time.reduceRight((acc, red) => {
-    //     return acc + " " + red;
-    // })
-    // return t;
-    const t = time.reduce((acc, red) => {
-        const first = acc.split(" ");
-        const second = red.split(" ");
-        if (first[0] === second[0]) {
-            return `${first[0]} ${first[1]}-${second[1]}`
-        }
+    const t = time.reduceRight((acc, red) => {
         return acc + " " + red;
     })
+    return t;
+    // const t = time.reduce((acc, red) => {
+    //     const first = acc.split(" ");
+    //     const second = red.split(" ");
+    //     if (first[0] === second[0]) {
+    //         return `${first[0]} ${first[1]}-${second[1]}`
+    //     }
+    //     return acc + " " + red;
+    // })
 
-    let long = t.split("-");
-    if (long.length > 1) {
-        return `${long[0]}-${long[long.length - 1]}`
-    }
+    // let long = t.split("-");
+    // if (long.length > 1) {
+    //     return `${long[0]}-${long[long.length - 1]}`
+    // }
 
     return t;
 }

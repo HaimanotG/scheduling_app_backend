@@ -36,7 +36,7 @@ const markTeacherAsBooked = (teacher, dayofTheWeek, hour) => {
         _timeTeacherBooked.push({ teacher, booked });
     }
 }
-const markRoomAsBooked = (room, dayofTheWeek, hour) => {
+const markRoomAsBooked = (room, dayofTheWeek, hour, batch) => {
     const isRoominBooked = _timesRoomBooked.find(_ => _.room === room);
     if (isRoominBooked) {
         _timesRoomBooked = _timesRoomBooked.map(_ => {
@@ -48,7 +48,7 @@ const markRoomAsBooked = (room, dayofTheWeek, hour) => {
                         room, booked: booked.map(b => {
                             const { day, hours } = b;
                             if (b.day === dayofTheWeek) {
-                                return { day, hours: [...hours, hour] }
+                                return { day, hours: [...hours, { batch, hour }] }
                             }
                             return b;
                         })
@@ -56,7 +56,7 @@ const markRoomAsBooked = (room, dayofTheWeek, hour) => {
                 } else {
                     return {
                         room,
-                        booked: [...booked, { day: dayofTheWeek, hours: [hour] }]
+                        booked: [...booked, { day: dayofTheWeek, hours: [{ batch, hour }] }]
                     }
                 }
             } else {
@@ -64,25 +64,44 @@ const markRoomAsBooked = (room, dayofTheWeek, hour) => {
             }
         });
     } else {
-        const booked = [{ day: dayofTheWeek, hours: [hour] }]
+        const booked = [{
+            day: dayofTheWeek, hours: [{
+                batch,
+                hour,
+            }]
+        }]
         _timesRoomBooked.push({ room, booked });
     }
 }
-
-const _isRoomBooked = (room, day, hour) => {
+const _isBatchBooked = (room, day, h, batch) => {
     const roominBooked = _timesRoomBooked.find(r => r.room === room);
     if (roominBooked) {
         for (const schedule of roominBooked.booked) {
             if (schedule.day === day) {
-                for (const _hour of schedule.hours) {
-                    if (_hour === hour) {
+                for (const hour of schedule.hours) {
+                    if (hour.hour === h && hour.batch === batch) {
                         return true;
                     }
                 }
             }
         }
     }
+    return false;
+}
 
+const _isRoomBooked = (room, day, h, batch) => {
+    const roominBooked = _timesRoomBooked.find(r => r.room === room);
+    if (roominBooked) {
+        for (const schedule of roominBooked.booked) {
+            if (schedule.day === day) {
+                for (const hour of schedule.hours) {
+                    if (hour.hour === h) {
+                        return true;
+                    }
+                }
+            }
+        }
+    }
     return false;
 }
 
@@ -104,33 +123,38 @@ const _isTeacherBooked = (teacher, day, hour) => {
 
 const _makeTimeForDisplay = (time = []) => {
     if (time.length <= 0) return "";
-    const t = time.reduce((acc, red) => {
-        const first = acc.split(" ");
-        const second = red.split(" ");
-        if (first[0] === second[0]) {
-            return `${first[0]} ${first[1]}-${second[1]}`
-        }
+    const t = time.reduceRight((acc, red) => {
         return acc + " " + red;
     })
+    return t;
+    // const t = time.reduce((acc, red) => {
+    //     const first = acc.split(" ");
+    //     const second = red.split(" ");
+    //     if (first[0] === second[0]) {
+    //         return `${first[0]} ${first[1]}-${second[1]}`
+    //     }
+    //     return acc + " " + red;
+    // })
 
-    let long = t.split("-");
-    if (long.length > 1) {
-        return `${long[0]}-${long[long.length - 1]}`
-    }
+    // let long = t.split("-");
+    // if (long.length > 1) {
+    //     return `${long[0]}-${long[long.length - 1]}`
+    // }
 
     return t;
 }
 
-const allocateTime = (room, crdthrs, teacher) => {
+const allocateTime = (room, crdthrs, teacher, batch) => {
     const time = [];
     for (let i = 0; i < crdthrs; i++) {
         const s = _slots[Math.floor(Math.random() * _slots.length)];
         const h = s.hours[Math.floor(Math.random() * s.hours.length)];
 
         if (!_isRoomBooked(room, s.day, h)
-            && !_isTeacherBooked(teacher, s.day, h)) {
+            && !_isTeacherBooked(teacher, s.day, h)
+            && !_isBatchBooked(room, s.day, h, batch)) {
             time.push(s.day + " " + h);
-            markRoomAsBooked(room, s.day, h);
+            markRoomAsBooked(room, s.day, h, batch);
             markTeacherAsBooked(teacher, s.day, h);
             if (time.length >= crdthrs) return _makeTimeForDisplay(time);
         }
@@ -138,7 +162,8 @@ const allocateTime = (room, crdthrs, teacher) => {
         for (const slot of _slots) {
             for (const hour of slot.hours) {
                 if (!_isRoomBooked(room, slot.day, hour)
-                    && !_isTeacherBooked(teacher, slot.day, hour)) {
+                    && !_isTeacherBooked(teacher, slot.day, hour)
+                    && !_isBatchBooked(room, slot.day, hour, batch)) {
                     time.push(slot.day + " " + hour);
                     markRoomAsBooked(room, slot.day, hour);
                     markTeacherAsBooked(teacher, slot.day, hour);
@@ -151,12 +176,12 @@ const allocateTime = (room, crdthrs, teacher) => {
 }
 
 const generateScheduleForCourse = ({ teacher, totalCreditHours, labCreditHours },
-    { labRoom, classRoom }) => {
+    { labRoom, classRoom }, batch) => {
     const lessonCreditHours = totalCreditHours - labCreditHours;
     teacher = teacher ? teacher.name : 'TBA';
     return {
-        lessonTime: allocateTime(classRoom, lessonCreditHours, teacher),
-        labTime: allocateTime(labRoom, labCreditHours, teacher)
+        lessonTime: allocateTime(classRoom, lessonCreditHours, teacher, batch),
+        labTime: allocateTime(labRoom, labCreditHours, teacher, batch)
     }
 }
 
@@ -217,6 +242,8 @@ const schedule = async id => {
         console.timeEnd();
         // console.log(schedules);
         // console.table(schedules);
+        // console.table(_timesRoomBooked[0]);
+        // console.log(_timesRoomBooked[0]);
         return schedules;
     } catch (e) {
         console.log(e);
